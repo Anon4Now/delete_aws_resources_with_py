@@ -2,6 +2,7 @@
 
 # Standard Library imports
 from dataclasses import dataclass
+import json
 
 # Third-party imports
 from botocore.exceptions import ClientError
@@ -23,7 +24,8 @@ class DefaultResources:
     skip_regions: list = None
 
     def __init__(self):
-        pass
+        self.region_list = self.get_regions()
+        self.skip_regions = ["us-east-1", "us-west-2"]
 
     def get_regions(self) -> list:
         """
@@ -32,8 +34,17 @@ class DefaultResources:
         :raise: AWS API "Boto3" ClientErrors
         """
         try:
-            get_regions = create_boto3_client('ec2').describe_regions()
-            print("DELETE ME AFTER USE IN DATACLASS", get_regions)
+            get_region_object = create_boto3_client('ec2').describe_regions()
+            print("DELETE ME AFTER USE IN DATACLASS", get_region_object)
+            #  json data parsing
+            jsonStr = json.dumps(get_region_object)
+            print(jsonStr)
+            response = json.loads(jsonStr)
+            print(response)
+            regionStr = json.dumps(response['Regions'])
+            print(regionStr)
+            regions = json.loads(regionStr)
+            print(regions)
         except ClientError as e:
             logger.error("[-] Failed to retrieve region object from AWS with error: %s", e)
 
