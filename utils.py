@@ -3,11 +3,14 @@
 # Standard Library imports
 import logging
 import optparse
+import os
 
 # Third-party imports
 import boto3
 import botocore.exceptions
 
+
+# REGION_LIST = os.environ.get("region_skip_list")  # use if needing to read from ENV vars
 
 #####################################
 # Create logger func
