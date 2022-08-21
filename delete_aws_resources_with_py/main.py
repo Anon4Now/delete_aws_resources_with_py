@@ -7,13 +7,13 @@ from get_resources import GetRegions
 from select_options import SetArgsAndObjects
 from delete_aws_resources_with_py import (
     create_logger,
-    GetResources,
-    DeleteResources
+    AlterResources
 )
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
 logger = create_logger()
+skip_region_list = ["us-east-1", "us-west-2"]
 # regionClient = boto3.client('ec2')
 # regionResources = GetRegions(regionClient)
 # regions = regionResources.getRegions()
@@ -22,7 +22,9 @@ logger = create_logger()
 #  Main Function
 def main():
     logger.info("[!] Attempting to get resources")
-    get_regions = DefaultResources()
+    get_regions = AlterResources('ec2', skip_region_list)
+    print(get_regions.region_list)
+
 
     # outArgs = getArgs()
     # for region in regions:

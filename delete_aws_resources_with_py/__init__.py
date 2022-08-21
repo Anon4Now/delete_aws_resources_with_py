@@ -6,6 +6,5 @@ from .utils import (
 )
 
 from .default_resources import (
-    GetResources,
-    DeleteResources
+    AlterResources
 )
