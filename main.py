@@ -4,11 +4,17 @@
 
 # Local app imports
 from get_resources import GetRegions
-from 
+from select_options import SetArgsAndObjects
+from utils import (
+    getArgs,
+    create_logger,
+    create_boto3_resource,
+    create_boto3_client
+)
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
-
+logger = create_logger()
 regionClient = boto3.client('ec2')
 regionResources = GetRegions(regionClient)
 regions = regionResources.getRegions()
