@@ -12,14 +12,19 @@ from delete_aws_resources_with_py import (
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
 logger = create_logger()
-skip_region_list = ["us-east-1", "us-west-2"]
+SKIP_REGIONS = ["us-east-1", "us-west-2"]
 
 
 if __name__ == "__main__":
     args = getArgs()
-    logger.info("[!] Attempting to get resources")
-    get_regions = AlterResources(resource='ec2', skip_region_list=skip_region_list, args=args)
-    get_regions.call_methods()
+    try:
+        get_regions = AlterResources(resource='ec2', skip_region_list=SKIP_REGIONS, args=args)
+    except Exception as e:
+        logger.error("[-] Failed to instantiate the object with error: %s", e)
+    else:
+        logger.info("[!] Attempting to obtain region/vpc data & perform action='%s' on default resources", args.sanitize_option)
+        get_regions.call_methods()
+
 
     # outArgs = getArgs()
     # for region in regions:

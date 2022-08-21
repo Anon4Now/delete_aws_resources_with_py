@@ -12,8 +12,7 @@ from botocore.exceptions import ClientError
 from delete_aws_resources_with_py import (
     create_boto3_client,
     create_boto3_resource,
-    create_logger,
-    getArgs
+    create_logger
 )
 
 logger = create_logger()
@@ -84,6 +83,5 @@ class AlterResources(Resources):
             except Exception as e:
                 logger.error("[-] Failed to get VPC data from method with error: %s", e)
             else:
-                print(self.current_region, self.current_vpc)
-                print(self.args)
+                logger.info("[+] Successfully obtained data for region: %s & VPC: %s", self.current_region, self.current_vpc)
 
