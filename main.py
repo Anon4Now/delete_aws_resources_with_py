@@ -6,8 +6,9 @@
 # from get_resources import GetRegions
 # from select_options import SetArgsAndObjects
 from delete_aws_resources_with_py import (
-    create_logger,
-    AlterResources
+    AlterResources,
+    create_logger
+
 )
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
@@ -19,12 +20,11 @@ skip_region_list = ["us-east-1", "us-west-2"]
 # regions = regionResources.getRegions()
 
 
-#  Main Function
-def main():
+if __name__ == "__main__":
+
     logger.info("[!] Attempting to get resources")
     get_regions = AlterResources('ec2', skip_region_list)
-    print(get_regions.region_list)
-
+    get_regions.call_vpc()
 
     # outArgs = getArgs()
     # for region in regions:
@@ -43,7 +43,3 @@ def main():
     #             logger.error("[-] The option provided was not found, please try again (--help for more info)")
     #     except Exception as e:
     #         logger.error("[-] Failed to create variables with error: %s", e)
-
-
-if __name__ == "__main__":
-    main()

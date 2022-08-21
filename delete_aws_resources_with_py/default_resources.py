@@ -10,9 +10,9 @@ from botocore.exceptions import ClientError
 
 # Local app imports
 from delete_aws_resources_with_py import (
-    create_logger,
     create_boto3_client,
-    create_boto3_resource
+    create_boto3_resource,
+    create_logger
 )
 
 logger = create_logger()
@@ -68,26 +68,38 @@ class Resources:
         except ClientError as e:
             logger.error("[-] Failed to retrieve region object from AWS with error: %s", e)
 
-    def get_vpcs(self, current_region) -> list:
+    def get_vpcs(self, current_region: str) -> list:
         vpc_list = []
-        vpcs = create_boto3_client(self.resource, region=current_region).describe_vpcs(
-            Filters=[
-                {
-                    'Name': 'isDefault',
-                    'Values': [
-                        'true',
+        try:
+            vpcs = create_boto3_client(self.resource, region=current_region).describe_vpcs(
+                Filters=[
+                    {
+                        'Name': 'isDefault',
+                        'Values': [
+                            'true',
 
-                    ],
-                },
-            ]
-        )
+                        ],
+                    },
+                ]
+            )
 
-        # add vpc's to instance attribute
-        for vpc in vpcs['Vpcs']:
-            vpc_list.append(vpc['VpcId'])
-        print(vpc_list)
-        return vpc_list
+            # add vpc's to instance attribute
+            for vpc in vpcs['Vpcs']:
+                vpc_list.append(vpc['VpcId'])
+            print(vpc_list)
+            return vpc_list
+        except ClientError as e:
+            logger.error("[-] Failed to call the describe_vpc method with error: %s", e)
 
 
+@dataclass
 class AlterResources(Resources):
-    pass
+
+    def call_vpc(self):
+        for region in self.region_list:
+            try:
+                logger.info("[!] Attempting to get VPC ID for region: %s", region)
+                vpc_data = self.get_vpcs(current_region=region)
+                return vpc_data
+            except Exception as e:
+                logger.error("[-] Failed to get VPC data from method with error: %s", e)
