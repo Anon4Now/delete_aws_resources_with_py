@@ -12,7 +12,8 @@ from utils import (
     create_boto3_client
 )
 from default_resources import (
-    GetResources
+    GetResources,
+    DefaultResources
 )
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
@@ -25,7 +26,9 @@ logger = create_logger()
 
 #  Main Function
 def main():
-    get_resources = GetResources
+    logger.info("[!] Attempting to get resources")
+    get_regions = DefaultResources()
+
     # outArgs = getArgs()
     # for region in regions:
     #     try:
