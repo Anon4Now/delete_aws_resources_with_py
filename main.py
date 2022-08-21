@@ -3,8 +3,8 @@
 # !/usr/bin/env python
 
 # Local app imports
-from get_resources import GetRegions
-from select_options import SetArgsAndObjects
+# from get_resources import GetRegions
+# from select_options import SetArgsAndObjects
 from delete_aws_resources_with_py import (
     create_logger,
     AlterResources
