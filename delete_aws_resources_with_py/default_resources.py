@@ -24,7 +24,7 @@ class DefaultResources:
     vpc_list: list
     skip_regions: list = None
 
-    def __init__(self):
+    def __post_init__(self):
         self.skip_regions = ["us-east-1", "us-west-2"]
         self.region_list = self.get_regions()
 

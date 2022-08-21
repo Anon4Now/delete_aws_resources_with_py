@@ -5,15 +5,10 @@
 # Local app imports
 from get_resources import GetRegions
 from select_options import SetArgsAndObjects
-from utils import (
-    getArgs,
+from delete_aws_resources_with_py import (
     create_logger,
-    create_boto3_resource,
-    create_boto3_client
-)
-from default_resources import (
     GetResources,
-    DefaultResources
+    DeleteResources
 )
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
