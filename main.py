@@ -2,38 +2,11 @@
 
 # !/usr/bin/env python
 
-# Standard Library imports
-import optparse
-import logging
-
-# Third-party imports
-import boto3
-
 # Local app imports
 from get_resources import GetRegions
+from 
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
-
-# Logger configurations
-logger = logging.getLogger()
-logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
-
-parser = optparse.OptionParser()
-
-
-def getArgs():
-    parser.add_option("-o", "--option", dest="sanitize_option",
-                      help="Use this flag to select an option to run against account (e.g. --option deleteonly || -o modifyonly --"
-                           "The options available are 'all', 'deleteonly', 'modifyonly'"
-                           "the default action with be run 'alloptions'")
-    parsingInput = parser.parse_args()
-
-    (options, args) = parsingInput
-
-    if not options.sanitize_option:
-        parser.error("[-] Please specify an option flag, --help for more info")
-    else:
-        return options
 
 
 regionClient = boto3.client('ec2')
