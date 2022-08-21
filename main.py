@@ -1,9 +1,16 @@
-#!/usr/bin/env python
-from __future__ import print_function
-from get_resources import GetRegions
+"""Module containing the main script to run"""
+
+# !/usr/bin/env python
+
+# Standard Library imports
 import optparse
-import boto3
 import logging
+
+# Third-party imports
+import boto3
+
+# Local app imports
+from get_resources import GetRegions
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
