@@ -3,6 +3,7 @@
 # Standard Library imports
 import logging
 import optparse
+import sys
 import os
 
 # Third-party imports
@@ -23,8 +24,9 @@ def create_logger() -> logging:
     Create a logger
     :return: logger
     """
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
     log = logging.getLogger()
-    log.setLevel("INFO")
+    # log.setLevel(logging.INFO)
 
     logging.getLogger('boto').setLevel(logging.CRITICAL)
     logging.getLogger('botocore').setLevel(logging.CRITICAL)

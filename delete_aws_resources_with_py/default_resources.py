@@ -12,37 +12,12 @@ from botocore.exceptions import ClientError
 from delete_aws_resources_with_py import (
     create_boto3_client,
     create_boto3_resource,
-    create_logger
+    create_logger,
+    getArgs
 )
 
 logger = create_logger()
 
-
-# @dataclass
-# class DefaultResources:
-#     region_list: list
-#     vpc_list: list
-#     skip_regions: list = None
-#
-#     def __post_init__(self):
-#         self.skip_regions = ["us-east-1", "us-west-2"]
-#         self.region_list = self.get_regions()
-#
-#     def get_regions(self) -> list:
-#         """
-#         Will generate a list of regions to take action on
-#         :return: List containing the regions to delete resources from
-#         :raise: AWS API "Boto3" ClientErrors
-#         """
-#         region_list = []
-#         try:
-#             get_region_object = create_boto3_client('ec2').describe_regions()
-#             for region in get_region_object['Regions']:
-#                 if region['RegionName'] in self.skip_regions:
-#                     region_list.append(region['RegionName'])
-#             return region_list
-#         except ClientError as e:
-#             logger.error("[-] Failed to retrieve region object from AWS with error: %s", e)
 
 @dataclass
 class Resources:
@@ -86,7 +61,6 @@ class Resources:
             # add vpc's to instance attribute
             for vpc in vpcs['Vpcs']:
                 vpc_list.append(vpc['VpcId'])
-            print(vpc_list)
             return vpc_list
         except ClientError as e:
             logger.error("[-] Failed to call the describe_vpc method with error: %s", e)
@@ -94,12 +68,22 @@ class Resources:
 
 @dataclass
 class AlterResources(Resources):
+    args: str
+    current_vpc: list = None
+    boto_resource: str = None
+    current_region: str = None
 
-    def call_vpc(self):
+    def call_methods(self):
         for region in self.region_list:
             try:
-                logger.info("[!] Attempting to get VPC ID for region: %s", region)
-                vpc_data = self.get_vpcs(current_region=region)
-                return vpc_data
+                self.current_region = region
+                self.current_vpc = self.get_vpcs(current_region=region)
+                self.boto_resource = create_boto3_resource(self.resource, region=region)
+            except ClientError as e:
+                logger.error("[-] Failed to get boto_resource with error: %s", e)
             except Exception as e:
                 logger.error("[-] Failed to get VPC data from method with error: %s", e)
+            else:
+                print(self.current_region, self.current_vpc)
+                print(self.args)
+

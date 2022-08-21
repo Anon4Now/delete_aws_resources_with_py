@@ -1,8 +1,10 @@
 from .utils import (
+    create_logger,
     create_boto3_resource,
     create_boto3_client,
     error_handler,
-    create_logger
+    getArgs
+
 )
 
 from .default_resources import (
@@ -10,5 +12,3 @@ from .default_resources import (
 )
 
 logger = create_logger()
-
-logger.info("[-] gusdusgus")

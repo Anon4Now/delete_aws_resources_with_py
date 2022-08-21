@@ -3,28 +3,23 @@
 # !/usr/bin/env python
 
 # Local app imports
-# from get_resources import GetRegions
-# from select_options import SetArgsAndObjects
 from delete_aws_resources_with_py import (
+    create_logger,
     AlterResources,
-    create_logger
-
+    getArgs
 )
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
 logger = create_logger()
 skip_region_list = ["us-east-1", "us-west-2"]
-# regionClient = boto3.client('ec2')
-# regionResources = GetRegions(regionClient)
-# regions = regionResources.getRegions()
 
 
 if __name__ == "__main__":
-
+    args = getArgs()
     logger.info("[!] Attempting to get resources")
-    get_regions = AlterResources('ec2', skip_region_list)
-    get_regions.call_vpc()
+    get_regions = AlterResources(resource='ec2', skip_region_list=skip_region_list, args=args)
+    get_regions.call_methods()
 
     # outArgs = getArgs()
     # for region in regions:
