@@ -9,8 +9,12 @@ import os
 import boto3
 import botocore.exceptions
 
-
+#####################################
+# Get Environment Variables
+#####################################
 # REGION_LIST = os.environ.get("region_skip_list")  # use if needing to read from ENV vars
+AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
 
 #####################################
 # Create logger func

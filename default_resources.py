@@ -1,18 +1,20 @@
 """Module containing classes that are used to find and delete resources"""
 
 # Standard Library imports
+import os
 from dataclasses import dataclass
 import json
 
 # Third-party imports
 from botocore.exceptions import ClientError
 
-
 # Local app imports
 from utils import (
     create_logger,
     create_boto3_client,
-    create_boto3_resource
+    create_boto3_resource,
+    AWS_ACCESS_KEY,
+    AWS_SECRET_KEY
 )
 
 logger = create_logger()
@@ -35,7 +37,7 @@ class DefaultResources:
         :raise: AWS API "Boto3" ClientErrors
         """
         try:
-            get_region_object = create_boto3_client('ec2').describe_regions()
+            get_region_object = create_boto3_client('ec2', region=None, access_key=AWS_ACCESS_KEY, secret_key=AWS_SECRET_KEY).describe_regions()
             print("DELETE ME AFTER USE IN DATACLASS", get_region_object)
             #  json data parsing
             jsonStr = json.dumps(get_region_object)
