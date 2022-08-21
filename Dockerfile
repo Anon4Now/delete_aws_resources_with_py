@@ -16,6 +16,6 @@ RUN apt install -y python3-pip python3-distutils python3-apt
 RUN pip install boto3
 
 WORKDIR /usr/app/src
-COPY main.py get_resources.py delete_resources.py ./
+COPY main.py default_resources.py ./
 
 CMD [ "python3", "./main.py" ]
