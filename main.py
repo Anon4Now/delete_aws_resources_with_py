@@ -15,16 +15,20 @@ logger = create_logger()
 SKIP_REGIONS = ["us-east-1", "us-west-2"]
 
 
-if __name__ == "__main__":
+def main():
     args = getArgs()
     try:
         get_regions = AlterResources(resource='ec2', skip_region_list=SKIP_REGIONS, args=args)
     except Exception as e:
         logger.error("[-] Failed to instantiate the object with error: %s", e)
     else:
-        logger.info("[!] Attempting to obtain region/vpc data & perform action='%s' on default resources", args.sanitize_option)
+        logger.info("[!] Attempting to obtain region/vpc data & perform action='%s' on default resources",
+                    args.sanitize_option)
         get_regions.call_methods()
 
+
+if __name__ == "__main__":
+    main()
 
     # outArgs = getArgs()
     # for region in regions:

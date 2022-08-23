@@ -124,7 +124,7 @@ def error_handler(func):
         except botocore.exceptions.NoRegionError as err:
             logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
         except botocore.exceptions.ClientError as err:
-            logger.error("ClientError: error=%s func=%s", err.fmt, func.__name__)
+            logger.error("ClientError: error=%s func=%s", err, func.__name__)
         except Exception as err:
             logger.error("GeneralException: error=%s func=%s", err, func.__name__)
         return result

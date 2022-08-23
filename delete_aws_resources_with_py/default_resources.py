@@ -12,7 +12,8 @@ from botocore.exceptions import ClientError
 from delete_aws_resources_with_py import (
     create_boto3_client,
     create_boto3_resource,
-    create_logger
+    create_logger,
+    error_handler
 )
 
 logger = create_logger()
@@ -26,6 +27,7 @@ class Resources:
     def __post_init__(self):
         self.region_list = self.get_regions()
 
+    @error_handler
     def get_regions(self) -> list:
         """
         Will generate a list of regions to take action on
@@ -33,36 +35,33 @@ class Resources:
         :raise: AWS API "Boto3" ClientErrors
         """
         region_list = []
-        try:
-            get_region_object = create_boto3_client(self.resource).describe_regions()
-            for region in get_region_object['Regions']:
-                if region['RegionName'] in self.skip_region_list:
-                    region_list.append(region['RegionName'])
-            return region_list
-        except ClientError as e:
-            logger.error("[-] Failed to retrieve region object from AWS with error: %s", e)
 
+        get_region_object = create_boto3_client(self.resource).describe_regions()
+        for region in get_region_object['Regions']:
+            if region['RegionName'] in self.skip_region_list:
+                region_list.append(region['RegionName'])
+        return region_list
+
+    @error_handler
     def get_vpcs(self, current_region: str) -> list:
         vpc_list = []
-        try:
-            vpcs = create_boto3_client(self.resource, region=current_region).describe_vpcs(
-                Filters=[
-                    {
-                        'Name': 'isDefault',
-                        'Values': [
-                            'true',
+        vpcs = create_boto3_client(self.resource, region=current_region).describe_vpcs(
+            Filters=[
+                {
+                    'Name': 'isDefault',
+                    'Values': [
+                        'true',
 
-                        ],
-                    },
-                ]
-            )
+                    ],
+                },
+            ]
+        )
 
-            # add vpc's to instance attribute
-            for vpc in vpcs['Vpcs']:
-                vpc_list.append(vpc['VpcId'])
-            return vpc_list
-        except ClientError as e:
-            logger.error("[-] Failed to call the describe_vpc method with error: %s", e)
+        # add vpc's to instance attribute
+        for vpc in vpcs['Vpcs']:
+            vpc_list.append(vpc['VpcId'])
+        return vpc_list
+
 
 
 @dataclass
@@ -74,14 +73,9 @@ class AlterResources(Resources):
 
     def call_methods(self):
         for region in self.region_list:
-            try:
-                self.current_region = region
-                self.current_vpc = self.get_vpcs(current_region=region)
-                self.boto_resource = create_boto3_resource(self.resource, region=region)
-            except ClientError as e:
-                logger.error("[-] Failed to get boto_resource with error: %s", e)
-            except Exception as e:
-                logger.error("[-] Failed to get VPC data from method with error: %s", e)
-            else:
-                logger.info("[+] Successfully obtained data for region: %s & VPC: %s", self.current_region, self.current_vpc)
+            self.current_region = region
+            self.current_vpc = self.get_vpcs(current_region=region)
+            self.boto_resource = create_boto3_resource(self.resource, region=region)
+
+
 
