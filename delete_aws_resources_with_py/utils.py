@@ -115,10 +115,9 @@ def error_handler(func):
     # exception handling decorator function
 
     def inner_func(*args, **kwargs):
-        result = False
         try:
-            func(*args, **kwargs)
-            result = True
+            result = func(*args, **kwargs)
+            return result
         except botocore.exceptions.NoCredentialsError as err:
             logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
         except botocore.exceptions.NoRegionError as err:
@@ -127,6 +126,5 @@ def error_handler(func):
             logger.error("ClientError: error=%s func=%s", err, func.__name__)
         except Exception as err:
             logger.error("GeneralException: error=%s func=%s", err, func.__name__)
-        return result
 
     return inner_func

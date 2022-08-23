@@ -18,7 +18,7 @@ SKIP_REGIONS = ["us-east-1", "us-west-2"]
 def main():
     args = getArgs()
     try:
-        get_regions = AlterResources(resource='ec2', skip_region_list=SKIP_REGIONS, args=args)
+        get_regions = AlterResources(resource='ec2', skip_region_list=SKIP_REGIONS, args=args.sanitize_option)
     except Exception as e:
         logger.error("[-] Failed to instantiate the object with error: %s", e)
     else:
