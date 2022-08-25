@@ -22,9 +22,14 @@ class Resources:
 
     def __post_init__(self):
         self.vpc_id = self.get_vpcs(self.region)
-        self.current_vpc_resource = create_boto3_resource(self.resource, region=self.region).Vpc(self.vpc_id)
+        self.boto_resource = create_boto3_resource(self.resource, region=self.region)
+        self.current_vpc_resource = self.boto_resource.Vpc(self.vpc_id)
         self.igw = self.current_vpc_resource.internet_gateways.all()
-        self.subnet = self.current_vpc_resource.subnets.all()
+        subnets = self.current_vpc_resource.subnets.all()
+        self.default_subnets = [self.boto_resource.Subnet(subnet.id) for subnet in subnets if subnet.default_for_az]
+        self.route_tables = self.current_vpc_resource.route_tables.all()
+        self.acls = self.current_vpc_resource.network_acls.all()
+        self.sgs = self.current_vpc_resource.security_groups.all()
 
     @error_handler
     def get_vpcs(self, current_region: str) -> str:
