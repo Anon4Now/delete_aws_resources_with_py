@@ -38,6 +38,15 @@ def delete_resources(obj):
         obj.boto_resource.RouteTable(routeTable.id).delete()
         logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted", routeTable.id, obj.region)
 
+        # TODO: NEED TO ADD NACL DELETE
+        # TODO: NEED TO ADD SG DELETE
+        # TODO: NEED TO ADD VPC DELETE
+
+
+def update_resources():
+    pass
+    # TODO: NEED TO ADD UPDATE CONTENT
+
 
 def main():
     args = getArgs()
