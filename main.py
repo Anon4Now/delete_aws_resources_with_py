@@ -5,7 +5,6 @@
 # Local app imports
 from delete_aws_resources_with_py import (
     create_logger,
-    AlterResources,
     getArgs
 )
 
@@ -17,15 +16,7 @@ SKIP_REGIONS = ["us-east-1", "us-west-2"]
 
 def main():
     args = getArgs()
-    try:
-        get_regions = AlterResources(resource='ec2', skip_region_list=SKIP_REGIONS, args=args.sanitize_option)
-    except Exception as e:
-        logger.error("[-] Failed to instantiate the object with error: %s", e)
-    else:
-        logger.info("[!] Attempting to obtain region/vpc data & perform action='%s' on default resources",
-                    args.sanitize_option)
-        get_regions.call_methods()
-
+    
 
 if __name__ == "__main__":
     main()
