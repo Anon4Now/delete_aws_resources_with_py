@@ -22,25 +22,40 @@ def delete_resources(obj):
         logger.info("[!] Attempting to detach and delete IGW-ID: '%s' in Region: '%s'", igw.id, obj.region)
         igw.detach_from_vpc(VpcId=obj.vpc_id)
         igw.delete()
-        logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted", igw.id, obj.region)
+        logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", igw.id, obj.region)
     for subnet in obj.default_subnets:
         logger.info("[!] Attempting to detach and delete Subnet-ID: '%s' in Region: '%s'", subnet.id, obj.region)
         subnet.delete()
-        logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted", subnet.id, obj.region)
+        logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", subnet.id, obj.region)
     for routeTable in obj.route_tables:
         #  found the route table associations
         associatedAttribute = [routeTable.associations_attribute for routeTable in obj.route_tables]
         #  check to see if it is the default the route table, this cannot be removed
         if [rtb_ass[0]['RouteTableId'] for rtb_ass in associatedAttribute if rtb_ass[0]['Main'] is True]:
-            logger.info("[!] '%s'' is the main route table, cannot delete continuing...\n", routeTable.id)
+            logger.info("[!] '%s'' is the main route table, this cannot be removed continuing\n", routeTable.id)
             continue
         logger.info("[!] Attempting to detach and delete Subnet-ID: '%s' in Region: '%s'", routeTable.id, obj.region)
         obj.boto_resource.RouteTable(routeTable.id).delete()
-        logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted", routeTable.id, obj.region)
-
-        # TODO: NEED TO ADD NACL DELETE
-        # TODO: NEED TO ADD SG DELETE
-        # TODO: NEED TO ADD VPC DELETE
+        logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", routeTable.id, obj.region)
+    for acl in obj.acls:
+        if acl.is_default:
+            logger.info("[!] '%s' is the default NACL, this cannot be removed continuing\n")
+            continue
+        else:
+            logger.info("[!] Attempting to remove NACL-ID: '%s' for Region: '%s'", acl.id, obj.region)
+            acl.delete()
+            logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", acl.id, obj.region)
+    for sg in obj.sgs:
+        if sg.group_name == 'default':
+            logger.info("[!] '%s' is the default SG, this cannot be removed continuing\n")
+            continue
+        else:
+            logger.info("[!] Attempting to remove SG-ID: '%s' for Region: '%s'", sg.id, obj.region)
+            sg.delete()
+            logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", sg.id, obj.region)
+    logger.info("[!] Attempting to remove VPC-ID: '%s' for Region: '%s'", obj.vpc_id, obj.region)
+    obj.current_vpc_resource.delete()
+    logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n\n", obj.vpc_id, obj.region)
 
 
 def update_resources():
@@ -55,7 +70,8 @@ def main():
     for current_region in region_list:
         obj = Resources(resource='ec2', region=current_region)
         if args.sanitize_option == 'all':
-            logger.info("[!] Performing '%s' actions on region: '%s' \n", args.sanitize_option, current_region)
+            logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
+            logger.info("========================================================================================\n")
             delete_resources(obj)
 
 
