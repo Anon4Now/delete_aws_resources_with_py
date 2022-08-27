@@ -11,4 +11,3 @@ from .default_resources import (
     Resource
 )
 
-logger = create_logger()

@@ -132,10 +132,16 @@ def update_resources(obj: Resource) -> bool:
     return True
 
 
+def update_ssm_preferences():
+    pass
+    # TODO: ADD SSM PARAMETER CONTENT HERE
+
+
 def main():
     args = getArgs()
     get_region_object = create_boto3_client('ec2').describe_regions()
-    region_list = [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] in SKIP_REGIONS]
+    region_list = [x['RegionName'] for x in get_region_object['Regions'] if
+                   x['RegionName'] in SKIP_REGIONS]  # TODO: PUT NOT IN FOR FINAL BUILD
     for current_region in region_list:
         obj = Resource(resource='ec2', region=current_region)  # instantiate the Resource object
         logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)

@@ -60,6 +60,9 @@ def getArgs():
 #######################################
 # Boto Client or Resource creation func
 #######################################
+
+# TODO: UPDATE WITH SINGLE FUNC
+
 def create_boto3_client(resource: str, region=None, access_key=None, secret_key=None, session_token=None):
     """
     Create a boto3 client based AWS resource (e.g. 'sts', 's3')
@@ -111,6 +114,8 @@ def create_boto3_resource(resource: str, region=None, access_key=None, secret_ke
 ###########################
 # Custom Error Handler func
 ###########################
+
+# TODO: MOVE AND USE ERROR HANDLER
 def error_handler(func):
     # exception handling decorator function
 

@@ -20,6 +20,7 @@ class Resource:
     region: str = None
     current_vpc_resource = None
 
+    # TODO: BUILD IN SAFETY CHECKS BEFORE INSTANTIATING BOTO
     def __post_init__(self):
         self.vpc_id = self.get_vpcs(self.region)
         self.boto_resource = create_boto3_resource(self.resource, region=self.region)
