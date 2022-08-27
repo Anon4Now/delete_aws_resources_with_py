@@ -6,6 +6,7 @@
 from delete_aws_resources_with_py import (
     create_logger,
     create_boto3,
+    error_handler,
     getArgs,
     Resource
 
@@ -152,11 +153,12 @@ def update_ssm_preferences(boto_client, region) -> None:
                     current_setting)
 
 
+@error_handler
 def main():
     args = getArgs()
     get_region_object = create_boto3(service='ec2', boto_type='boto_client').describe_regions()
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if
-                   x['RegionName'] in SKIP_REGIONS]  # TODO: PUT NOT IN FOR FINAL BUILD
+                   x['RegionName'] not in SKIP_REGIONS]
     for current_region in region_list:
         ssm_client = create_boto3(service='ssm', boto_type='boto_client', region=current_region)
         obj = Resource(resource='ec2', region=current_region)  # instantiate the Resource object
