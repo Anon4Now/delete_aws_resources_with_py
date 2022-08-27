@@ -17,7 +17,7 @@ logger = create_logger()
 SKIP_REGIONS = ["us-east-1", "us-west-2"]
 
 
-def delete_resources(obj: Resource) -> None:
+def delete_resources(obj: Resource) -> bool:
     """
     Function that takes in an instantiated Resources object and uses attrs on object
     to perform detach/delete actions related to default VPCs.
@@ -79,9 +79,10 @@ def delete_resources(obj: Resource) -> None:
     logger.info("[!] Attempting to remove VPC-ID: '%s' for Region: '%s'", obj.vpc_id, obj.region)
     obj.current_vpc_resource.delete()
     logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n\n", obj.vpc_id, obj.region)
+    return True
 
 
-def update_resources(obj: Resource) -> None:
+def update_resources(obj: Resource) -> bool:
     """
     Function that takes in an instantiated Resources object and uses attrs on object
     to perform modification actions related to default VPCs.
@@ -115,13 +116,20 @@ def update_resources(obj: Resource) -> None:
             )
             for el in sg_rule['SecurityGroupRules']:
                 if el['IsEgress']:
-                    logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'", el['SecurityGroupRuleId'], obj.region)
-                    obj.boto_client.revoke_security_group_egress(GroupId=sg.id, SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
-                    logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed", el['SecurityGroupRuleId'], obj.region)
+                    logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
+                                el['SecurityGroupRuleId'], obj.region)
+                    obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
+                                                                 SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
+                    logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed",
+                                el['SecurityGroupRuleId'], obj.region)
                 else:
-                    logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'", el['SecurityGroupRuleId'], obj.region)
-                    obj.boto_client.revoke_security_group_ingress(GroupId=sg.id, SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
-                    logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed", el['SecurityGroupRuleId'], obj.region)
+                    logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
+                                el['SecurityGroupRuleId'], obj.region)
+                    obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
+                                                                  SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
+                    logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed",
+                                el['SecurityGroupRuleId'], obj.region)
+    return True
 
 
 def main():
@@ -140,4 +148,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
