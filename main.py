@@ -17,7 +17,7 @@ logger = create_logger()
 SKIP_REGIONS = ["us-east-1", "us-west-2"]
 
 
-def delete_resources(obj: Resource) -> bool:
+def delete_resources(obj: Resource) -> None:
     """
     Function that takes in an instantiated Resources object and uses attrs on object
     to perform detach/delete actions related to default VPCs.
@@ -79,10 +79,9 @@ def delete_resources(obj: Resource) -> bool:
     logger.info("[!] Attempting to remove VPC-ID: '%s' for Region: '%s'", obj.vpc_id, obj.region)
     obj.current_vpc_resource.delete()
     logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n\n", obj.vpc_id, obj.region)
-    return True
 
 
-def update_resources(obj: Resource) -> bool:
+def update_resources(obj: Resource) -> None:
     """
     Function that takes in an instantiated Resources object and uses attrs on object
     to perform modification actions related to default VPCs.
@@ -129,12 +128,28 @@ def update_resources(obj: Resource) -> bool:
                                                                   SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
                     logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed",
                                 el['SecurityGroupRuleId'], obj.region)
-    return True
 
 
-def update_ssm_preferences():
-    pass
-    # TODO: ADD SSM PARAMETER CONTENT HERE
+def update_ssm_preferences(boto_client, region) -> None:
+    """
+    Function designed to check the SSM document preferences in each region.
+    If they are open to the public, update the preference to be private to the account.
+    :param boto_client: (required) Instantiated boto3 client for the current region in the loop
+    :param region: (required) Current region in the loop passed from main()
+    :return: Boolean depicting the success of the actions (True = success/False = failure)
+    """
+    public_share_setting = "/ssm/documents/console/public-sharing-permission"  # path provided by BOTO3 API docs
+    get_current_acct_settings = boto_client.get_service_setting(SettingId=public_share_setting)  # check current setting
+    current_setting = get_current_acct_settings['ServiceSetting']['SettingValue']
+    if current_setting == 'Enable':
+        logger.info(
+            "[!] SSM Document preferences allows public access with status '%s' in Region: '%s', attempting to update",
+            current_setting, region)
+        boto_client.update_service_setting(SettingId=public_share_setting, SettingValue="Disable")  # update setting
+        logger.info("[+] Preferences successfully updated to 'Disable' in Region: '%s'", region)
+    else:
+        logger.info("[+] SSM Document preferences already block public access with status '%s', no action taken",
+                    current_setting)
 
 
 def main():
@@ -143,11 +158,13 @@ def main():
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if
                    x['RegionName'] in SKIP_REGIONS]  # TODO: PUT NOT IN FOR FINAL BUILD
     for current_region in region_list:
+        ssm_client = create_boto3_client(resource='ssm', region=current_region)
         obj = Resource(resource='ec2', region=current_region)  # instantiate the Resource object
         logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
         logger.info("========================================================================================\n")
         if args.sanitize_option == 'all':
-            delete_resources(obj)
+            # delete_resources(obj)
+            update_ssm_preferences(ssm_client, current_region)
         elif args.sanitize_option == "modify":
             update_resources(obj)
 
