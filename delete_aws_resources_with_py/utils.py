@@ -100,49 +100,37 @@ def getArgs():
 
 # TODO: UPDATE WITH SINGLE FUNC
 
-def create_boto3_client(resource: str, region=None, access_key=None, secret_key=None, session_token=None):
+@error_handler
+def create_boto3(service: str, boto_type: str, region=None, access_key=None, secret_key=None, session_token=None):
     """
-    Create a boto3 client based AWS resource (e.g. 'sts', 's3')
-    :param resource: AWS resource passed as a string (required)
-    :param region: AWS region passed as a string (optional)
-    :param access_key: AWS STS Access Key string obtained for cross-account assume role actions (optional)
-    :param secret_key: AWS STS Secret Key string obtained for cross-account assume role actions (optional)
-    :param session_token: AWS STS Session Token string obtained for cross-account assume role actions (optional)
-    :return: Initialized boto3 client
-    :raise: AWS API "Boto3" returned client errors
+    Create a boto3 client or resource based AWS service passed (e.g. 'sts', 's3')
+    :param service: (required) AWS resource passed as a string (e.g. 'sts', 'ssm', 'ec2', etc...)
+    :param boto_type: (required) Type of boto3 instantiation wanted (i.e. 'boto_client' OR 'boto_resource')
+    :param region: (optional) AWS region passed as a string (optional)
+    :param access_key: (optional) AWS STS Access Key string obtained for cross-account assume role actions (optional)
+    :param secret_key: (optional) AWS STS Secret Key string obtained for cross-account assume role actions (optional)
+    :param session_token: (optional) AWS STS Session Token string obtained for cross-account assume role actions (optional)
+    :return: Initialized boto3 client or resource
     """
-    try:
-        boto_client = boto3.client(
-            resource,
-            region_name=region,
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_key,
-            aws_session_token=session_token
-        )
-        return boto_client
-    except botocore.exceptions.ClientError as e:
-        logger.error("[-] Failed to create boto client with error: %s", e)
-
-
-def create_boto3_resource(resource: str, region=None, access_key=None, secret_key=None, session_token=None):
-    """
-    Create a boto3 resource based AWS resource (e.g. 'sts', 's3')
-    :param resource: AWS resource passed as a string (required)
-    :param region: AWS region passed as a string (optional)
-    :param access_key: AWS STS Access Key string obtained for cross-account assume role actions (optional)
-    :param secret_key: AWS STS Secret Key string obtained for cross-account assume role actions (optional)
-    :param session_token: AWS STS Session Token string obtained for cross-account assume role actions (optional)
-    :return: Initialized boto3 client
-    :raise: AWS API "Boto3" returned client errors
-    """
-    try:
-        boto_resource = boto3.resource(
-            resource,
-            region_name=region,
-            aws_access_key_id=access_key,
-            aws_secret_access_key=secret_key,
-            aws_session_token=session_token
-        )
+    if boto_type not in ['boto_client', 'boto_resource']:
+        logger.error(
+            "[-] boto_type param passed to create_boto3 not valid, can either be 'boto_client' or 'boto_resource'")
+    else:
+        if boto_type == 'boto_client':
+            boto_client = boto3.client(
+                service,
+                region_name=region,
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+                aws_session_token=session_token
+            )
+            return boto_client
+        else:
+            boto_resource = boto3.resource(
+                service,
+                region_name=region,
+                aws_access_key_id=access_key,
+                aws_secret_access_key=secret_key,
+                aws_session_token=session_token
+            )
         return boto_resource
-    except botocore.exceptions.ClientError as e:
-        logger.error("[-] Failed to create boto resource with error: %s", e)
