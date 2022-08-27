@@ -3,8 +3,6 @@
 # Standard Library imports
 import logging
 import optparse
-import sys
-import os
 
 # Third-party imports
 import boto3
@@ -97,8 +95,6 @@ def getArgs():
 #######################################
 # Boto Client or Resource creation func
 #######################################
-
-# TODO: UPDATE WITH SINGLE FUNC
 
 @error_handler
 def create_boto3(service: str, boto_type: str, region=None, access_key=None, secret_key=None, session_token=None):
