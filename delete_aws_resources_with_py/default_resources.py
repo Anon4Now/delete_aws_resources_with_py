@@ -23,6 +23,7 @@ class Resources:
     def __post_init__(self):
         self.vpc_id = self.get_vpcs(self.region)
         self.boto_resource = create_boto3_resource(self.resource, region=self.region)
+        self.boto_client = create_boto3_client(self.resource, region=self.region)
         self.current_vpc_resource = self.boto_resource.Vpc(self.vpc_id)
         self.igw = self.current_vpc_resource.internet_gateways.all()
         subnets = self.current_vpc_resource.subnets.all()
