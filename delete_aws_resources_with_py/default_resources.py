@@ -5,8 +5,7 @@ from dataclasses import dataclass
 
 # Local app imports
 from delete_aws_resources_with_py import (
-    create_boto3_client,
-    create_boto3_resource,
+    create_boto3,
     create_logger,
     error_handler
 )
@@ -22,9 +21,9 @@ class Resource:
 
     # TODO: BUILD IN SAFETY CHECKS BEFORE INSTANTIATING BOTO
     def __post_init__(self):
-        self.vpc_id = self.get_vpcs(self.region)
-        self.boto_resource = create_boto3_resource(self.resource, region=self.region)
-        self.boto_client = create_boto3_client(self.resource, region=self.region)
+        self.vpc_id = self.get_vpcs()
+        self.boto_resource = create_boto3(service=self.resource, boto_tyoe="boto_resource", region=self.region)
+        self.boto_client = create_boto3(service=self.resource, boto_tyoe="boto_client", region=self.region)
         self.current_vpc_resource = self.boto_resource.Vpc(self.vpc_id)
         self.igw = self.current_vpc_resource.internet_gateways.all()
         subnets = self.current_vpc_resource.subnets.all()
@@ -34,8 +33,9 @@ class Resource:
         self.sgs = self.current_vpc_resource.security_groups.all()
 
     @error_handler
-    def get_vpcs(self, current_region: str) -> str:
-        vpcs = create_boto3_client(self.resource, region=current_region).describe_vpcs(
+    def get_vpcs(self) -> str:
+        #  create_boto3_client(self.resource, region=current_region)
+        vpcs = self.boto_client.describe_vpcs(
             Filters=[
                 {
                     'Name': 'isDefault',
