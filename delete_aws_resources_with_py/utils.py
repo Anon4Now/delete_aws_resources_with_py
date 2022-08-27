@@ -66,23 +66,24 @@ parser = optparse.OptionParser()
 
 
 def getArgs():
-    parser.add_option("-d", "--delete", dest="sanitize_option", default=True)
-    parser.add_option("-m", "--modify", dest="sanitize_option")
-    parser.add_option("-h", "--help", dest="sanitize_option",
-                      help="Use this flag to select an option to run against account (e.g. -d or --delete || -m or --modify --"
-                           "The options available are below: "
-                           "'delete' (default action)"
-                           "- Deletes Internet Gateway"
-                           "- Deletes Subnets"
-                           "- Deletes Route Tables (not default)"
-                           "- Deletes NACL (not default)"
-                           "- Deletes SG (not default)"
-                           "- Deletes default VPC"
-                           "- Updates SSM parameter preferences to block public access"
-                           "'modify'"
-                           "- Updates default NACL (removes inbound/outbound rules)"
-                           "- Updates default SG (removes inbound/outbound rules)"
-                           "- Updates SSM parameter preferences to block public access")
+    parser.add_option(
+        "-o",
+        "--option",
+        dest="sanitize_option",
+        help="Requires either (delete OR modify)"
+             "** delete option **\n"
+             "- Deletes Internet Gateway"
+             "- Deletes Subnets"
+             "- Deletes Route Tables (not default)"
+             "- Deletes NACL (not default)"
+             "- Deletes SG (not default)"
+             "- Deletes default VPC"
+             "- Updates SSM parameter preferences to block public access\n\n"
+             "** modify option **\n"
+             "- Updates default NACL (removes inbound/outbound rules)"
+             "- Updates default SG (removes inbound/outbound rules)"
+             "- Updates SSM parameter preferences to block public access"
+    )
     parsingInput = parser.parse_args()
 
     (options, args) = parsingInput

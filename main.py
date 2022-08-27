@@ -58,7 +58,7 @@ def delete_resources(obj: Resource) -> None:
     """Actions related to NACL deletion from default VPC; cannot delete the default NACL"""
     for acl in obj.acls:
         if acl.is_default:
-            logger.info("[!] '%s' is the default NACL, this cannot be removed continuing\n")
+            logger.info("[!] '%s' is the default NACL, this cannot be removed continuing\n", acl.id)
             continue
         else:
             logger.info("[!] Attempting to remove NACL-ID: '%s' for Region: '%s'", acl.id, obj.region)
@@ -68,7 +68,7 @@ def delete_resources(obj: Resource) -> None:
     """Actions related to SG deletion from default VPC; cannot delete the default SG"""
     for sg in obj.sgs:
         if sg.group_name == 'default':
-            logger.info("[!] '%s' is the default SG, this cannot be removed continuing\n")
+            logger.info("[!] '%s' is the default SG, this cannot be removed continuing\n", sg.id)
             continue
         else:
             logger.info("[!] Attempting to remove SG-ID: '%s' for Region: '%s'", sg.id, obj.region)
@@ -146,9 +146,9 @@ def update_ssm_preferences(boto_client, region) -> None:
             "[!] SSM Document preferences allows public access with status '%s' in Region: '%s', attempting to update",
             current_setting, region)
         boto_client.update_service_setting(SettingId=public_share_setting, SettingValue="Disable")  # update setting
-        logger.info("[+] Preferences successfully updated to 'Disable' in Region: '%s'", region)
+        logger.info("[+] Preferences successfully updated to 'Disable' in Region: '%s'\n", region)
     else:
-        logger.info("[+] SSM Document preferences already block public access with status '%s', no action taken",
+        logger.info("[+] SSM Document preferences already block public access with status '%s', no action taken\n",
                     current_setting)
 
 
@@ -160,13 +160,17 @@ def main():
     for current_region in region_list:
         ssm_client = create_boto3_client(resource='ssm', region=current_region)
         obj = Resource(resource='ec2', region=current_region)  # instantiate the Resource object
-        logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
-        logger.info("========================================================================================\n")
-        if args.sanitize_option == 'all':
-            delete_resources(obj)
-            update_ssm_preferences(ssm_client, current_region)
-        elif args.sanitize_option == "modify":
-            update_resources(obj)
+        if not args.sanitize_option == 'delete' or args.sanitize_option == 'modify':  # validate cmd line arg
+            logger.error("[-] Entered an incorrect option, use -h or --help for more information")
+            break
+        else:
+            logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
+            logger.info("========================================================================================\n")
+            if args.sanitize_option == 'delete':
+                delete_resources(obj)
+                update_ssm_preferences(ssm_client, current_region)
+            elif args.sanitize_option == "modify":
+                update_resources(obj)
 
 
 if __name__ == "__main__":
