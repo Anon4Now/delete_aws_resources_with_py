@@ -119,14 +119,14 @@ def update_resources(obj: Resource) -> None:
                                 el['SecurityGroupRuleId'], obj.region)
                     obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
                                                                  SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
-                    logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed",
+                    logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed\n",
                                 el['SecurityGroupRuleId'], obj.region)
                 else:
                     logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
                                 el['SecurityGroupRuleId'], obj.region)
                     obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
                                                                   SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
-                    logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed",
+                    logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed\n",
                                 el['SecurityGroupRuleId'], obj.region)
 
 
@@ -160,7 +160,7 @@ def main():
     for current_region in region_list:
         ssm_client = create_boto3_client(resource='ssm', region=current_region)
         obj = Resource(resource='ec2', region=current_region)  # instantiate the Resource object
-        if not args.sanitize_option == 'delete' or args.sanitize_option == 'modify':  # validate cmd line arg
+        if args.sanitize_option not in ['delete', 'modify']:  # validate cmd line arg
             logger.error("[-] Entered an incorrect option, use -h or --help for more information")
             break
         else:
@@ -171,6 +171,7 @@ def main():
                 update_ssm_preferences(ssm_client, current_region)
             elif args.sanitize_option == "modify":
                 update_resources(obj)
+                update_ssm_preferences(ssm_client, current_region)
 
 
 if __name__ == "__main__":
