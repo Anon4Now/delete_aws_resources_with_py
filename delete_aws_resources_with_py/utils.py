@@ -36,6 +36,29 @@ def create_logger() -> logging:
 logger = create_logger()  # create logger func
 
 
+###########################
+# Custom Error Handler func
+###########################
+
+def error_handler(func):
+    # exception handling decorator function
+
+    def inner_func(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except botocore.exceptions.NoCredentialsError as err:
+            logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
+        except botocore.exceptions.NoRegionError as err:
+            logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
+        except botocore.exceptions.ClientError as err:
+            logger.error("ClientError: error=%s func=%s", err, func.__name__)
+        except Exception as err:
+            logger.error("GeneralException: error=%s func=%s", err, func.__name__)
+
+    return inner_func
+
+
 #######################################
 # Option Parser
 #######################################
@@ -43,10 +66,23 @@ parser = optparse.OptionParser()
 
 
 def getArgs():
-    parser.add_option("-o", "--option", dest="sanitize_option",
-                      help="Use this flag to select an option to run against account (e.g. --option deleteonly || -o modifyonly --"
-                           "The options available are 'all', 'deleteonly', 'modifyonly'"
-                           "the default action with be run 'alloptions'")
+    parser.add_option("-d", "--delete", dest="sanitize_option", default=True)
+    parser.add_option("-m", "--modify", dest="sanitize_option")
+    parser.add_option("-h", "--help", dest="sanitize_option",
+                      help="Use this flag to select an option to run against account (e.g. -d or --delete || -m or --modify --"
+                           "The options available are below: "
+                           "'delete' (default action)"
+                           "- Deletes Internet Gateway"
+                           "- Deletes Subnets"
+                           "- Deletes Route Tables (not default)"
+                           "- Deletes NACL (not default)"
+                           "- Deletes SG (not default)"
+                           "- Deletes default VPC"
+                           "- Updates SSM parameter preferences to block public access"
+                           "'modify'"
+                           "- Updates default NACL (removes inbound/outbound rules)"
+                           "- Updates default SG (removes inbound/outbound rules)"
+                           "- Updates SSM parameter preferences to block public access")
     parsingInput = parser.parse_args()
 
     (options, args) = parsingInput
@@ -109,27 +145,3 @@ def create_boto3_resource(resource: str, region=None, access_key=None, secret_ke
         return boto_resource
     except botocore.exceptions.ClientError as e:
         logger.error("[-] Failed to create boto resource with error: %s", e)
-
-
-###########################
-# Custom Error Handler func
-###########################
-
-# TODO: MOVE AND USE ERROR HANDLER
-def error_handler(func):
-    # exception handling decorator function
-
-    def inner_func(*args, **kwargs):
-        try:
-            result = func(*args, **kwargs)
-            return result
-        except botocore.exceptions.NoCredentialsError as err:
-            logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
-        except botocore.exceptions.NoRegionError as err:
-            logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
-        except botocore.exceptions.ClientError as err:
-            logger.error("ClientError: error=%s func=%s", err, func.__name__)
-        except Exception as err:
-            logger.error("GeneralException: error=%s func=%s", err, func.__name__)
-
-    return inner_func
