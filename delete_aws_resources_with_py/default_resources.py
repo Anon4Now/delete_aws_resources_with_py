@@ -17,13 +17,12 @@ logger = create_logger()
 class Resource:
     resource: str = None
     region: str = None
-    current_vpc_resource = None
 
     # TODO: BUILD IN SAFETY CHECKS BEFORE INSTANTIATING BOTO
     def __post_init__(self):
+        self.boto_resource = create_boto3(service=self.resource, boto_type="boto_resource", region=self.region)
+        self.boto_client = create_boto3(service=self.resource, boto_type="boto_client", region=self.region)
         self.vpc_id = self.get_vpcs()
-        self.boto_resource = create_boto3(service=self.resource, boto_tyoe="boto_resource", region=self.region)
-        self.boto_client = create_boto3(service=self.resource, boto_tyoe="boto_client", region=self.region)
         self.current_vpc_resource = self.boto_resource.Vpc(self.vpc_id)
         self.igw = self.current_vpc_resource.internet_gateways.all()
         subnets = self.current_vpc_resource.subnets.all()
@@ -34,7 +33,6 @@ class Resource:
 
     @error_handler
     def get_vpcs(self) -> str:
-        #  create_boto3_client(self.resource, region=current_region)
         vpcs = self.boto_client.describe_vpcs(
             Filters=[
                 {
