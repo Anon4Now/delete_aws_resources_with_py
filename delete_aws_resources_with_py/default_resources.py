@@ -18,7 +18,6 @@ class Resource:
     resource: str = None
     region: str = None
 
-    # TODO: BUILD IN SAFETY CHECKS BEFORE INSTANTIATING BOTO
     def __post_init__(self) -> None:
         self.boto_resource = create_boto3(service=self.resource, boto_type="boto_resource", region=self.region)
         self.boto_client = create_boto3(service=self.resource, boto_type="boto_client", region=self.region)
