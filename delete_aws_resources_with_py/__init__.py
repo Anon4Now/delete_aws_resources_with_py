@@ -8,7 +8,7 @@ from .utils import (
 )
 
 from .default_resources import (
-    Resources
+    Resource
 )
 
 logger = create_logger()

@@ -15,7 +15,7 @@ logger = create_logger()
 
 
 @dataclass
-class Resources:
+class Resource:
     resource: str = None
     region: str = None
     current_vpc_resource = None

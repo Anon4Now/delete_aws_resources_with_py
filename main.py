@@ -7,7 +7,7 @@ from delete_aws_resources_with_py import (
     create_logger,
     create_boto3_client,
     getArgs,
-    Resources
+    Resource
 
 )
 
@@ -17,7 +17,7 @@ logger = create_logger()
 SKIP_REGIONS = ["us-east-1", "us-west-2"]
 
 
-def delete_resources(obj: Resources) -> None:
+def delete_resources(obj: Resource) -> None:
     """
     Function that takes in an instantiated Resources object and uses attrs on object
     to perform detach/delete actions related to default VPCs.
@@ -81,7 +81,7 @@ def delete_resources(obj: Resources) -> None:
     logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n\n", obj.vpc_id, obj.region)
 
 
-def update_resources(obj):
+def update_resources(obj: Resource) -> None:
     """
     Function that takes in an instantiated Resources object and uses attrs on object
     to perform modification actions related to default VPCs.
@@ -129,7 +129,7 @@ def main():
     get_region_object = create_boto3_client('ec2').describe_regions()
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] in SKIP_REGIONS]
     for current_region in region_list:
-        obj = Resources(resource='ec2', region=current_region)  # instantiate the Resource object
+        obj = Resource(resource='ec2', region=current_region)  # instantiate the Resource object
         logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
         logger.info("========================================================================================\n")
         if args.sanitize_option == 'all':
