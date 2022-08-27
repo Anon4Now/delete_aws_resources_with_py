@@ -163,7 +163,7 @@ def main():
         logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
         logger.info("========================================================================================\n")
         if args.sanitize_option == 'all':
-            # delete_resources(obj)
+            delete_resources(obj)
             update_ssm_preferences(ssm_client, current_region)
         elif args.sanitize_option == "modify":
             update_resources(obj)
