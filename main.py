@@ -163,6 +163,9 @@ def main():
         if args.sanitize_option not in ['delete', 'modify']:  # validate cmd line arg
             logger.error("[-] Entered an incorrect option, use -h or --help for more information")
             break
+        elif not obj.vpc_id:
+            logger.info("[!] Region: '%s' does not have a default VPC, continuing", current_region)
+            continue
         else:
             logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
             logger.info("========================================================================================\n")
