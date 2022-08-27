@@ -58,9 +58,36 @@ def delete_resources(obj):
     logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n\n", obj.vpc_id, obj.region)
 
 
-def update_resources():
-    pass
-    # TODO: NEED TO ADD UPDATE CONTENT
+def update_resources(obj):
+    for acl in obj.acls:
+        if acl.is_default:
+            logger.info("[!] Attempting to remove inbound & outbound NACL rule for '%s'", acl.id)
+            egress_flags = [True, False]
+            [obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id, RuleNumber=100) for x in
+             egress_flags]
+            logger.info("[!] Successfully removed inbound & outbound NACL rules for '%s'\n", acl.id)
+
+    for sg in obj.sgs:
+        if sg.group_name == 'default':
+            sg_rule = obj.boto_client.describe_security_group_rules(
+                Filters=[
+                    {
+                        'Name': 'group-id',
+                        'Values': [
+                            sg.id
+                        ]
+                    }
+                ]
+            )
+            for el in sg_rule['SecurityGroupRules']:
+                if el['IsEgress']:
+                    logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'", el['SecurityGroupRuleId'], obj.region)
+                    obj.boto_client.revoke_security_group_egress(GroupId=sg.id, SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
+                    logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed", el['SecurityGroupRuleId'], obj.region)
+                else:
+                    logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'", el['SecurityGroupRuleId'], obj.region)
+                    obj.boto_client.revoke_security_group_ingress(GroupId=sg.id, SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
+                    logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed", el['SecurityGroupRuleId'], obj.region)
 
 
 def main():
@@ -69,10 +96,12 @@ def main():
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] in SKIP_REGIONS]
     for current_region in region_list:
         obj = Resources(resource='ec2', region=current_region)
+        logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
+        logger.info("========================================================================================\n")
         if args.sanitize_option == 'all':
-            logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
-            logger.info("========================================================================================\n")
             delete_resources(obj)
+        elif args.sanitize_option == "modify":
+            update_resources(obj)
 
 
 if __name__ == "__main__":
