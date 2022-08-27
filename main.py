@@ -20,24 +20,30 @@ SKIP_REGIONS = ["us-east-1", "us-west-2"]
 def delete_resources(obj: Resources) -> None:
     """
     Function that takes in an instantiated Resources object and uses attrs on object
-    to perform detach/delete actions related to default VPCs
-    :param obj: Instantiated Resource Class object passed from main()
+    to perform detach/delete actions related to default VPCs.
+    Attempts to take actions on the following resources:
+    - Internet Gateway
+    - Subnets
+    - Route Tables
+    - Network Access Control Lists
+    - Security Groups
+    :param obj: (required) Instantiated Resource Class object passed from main()
     :return: None
     """
-    """Actions related to Internet Gateway removal from default VPC"""
+    """Actions related to Internet Gateway deletion from default VPC"""
     for igw in obj.igw:
         logger.info("[!] Attempting to detach and delete IGW-ID: '%s' in Region: '%s'", igw.id, obj.region)
         igw.detach_from_vpc(VpcId=obj.vpc_id)
         igw.delete()
         logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", igw.id, obj.region)
 
-    """Actions related to Subnet removal from default VPC"""
+    """Actions related to Subnet deletion from default VPC"""
     for subnet in obj.default_subnets:
         logger.info("[!] Attempting to detach and delete Subnet-ID: '%s' in Region: '%s'", subnet.id, obj.region)
         subnet.delete()
         logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", subnet.id, obj.region)
 
-    """Actions related to RouteTable removal from default VPC"""
+    """Actions related to RouteTable deletion from default VPC; cannot delete the default RouteTable"""
     for route_table in obj.route_tables:
         #  found the route table associations
         associated_attribute = [routeTable.associations_attribute for routeTable in obj.route_tables]
@@ -49,7 +55,7 @@ def delete_resources(obj: Resources) -> None:
         obj.boto_resource.RouteTable(route_table.id).delete()
         logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", route_table.id, obj.region)
 
-    """Actions related to NACL removal from default VPC"""
+    """Actions related to NACL deletion from default VPC; cannot delete the default NACL"""
     for acl in obj.acls:
         if acl.is_default:
             logger.info("[!] '%s' is the default NACL, this cannot be removed continuing\n")
@@ -59,7 +65,7 @@ def delete_resources(obj: Resources) -> None:
             acl.delete()
             logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", acl.id, obj.region)
 
-    """Actions related to SG removal from default VPC"""
+    """Actions related to SG deletion from default VPC; cannot delete the default SG"""
     for sg in obj.sgs:
         if sg.group_name == 'default':
             logger.info("[!] '%s' is the default SG, this cannot be removed continuing\n")
@@ -76,14 +82,25 @@ def delete_resources(obj: Resources) -> None:
 
 
 def update_resources(obj):
+    """
+    Function that takes in an instantiated Resources object and uses attrs on object
+    to perform modification actions related to default VPCs.
+    Attempts to take actions on the following resources:
+    - Network Access Control Lists
+    - Security Groups
+    :param obj: (required) Instantiated Resource Class object passed from main()
+    :return: None
+    """
+    """Actions related to removing inbound/outbound rules from the default NACL"""
     for acl in obj.acls:
         if acl.is_default:
             logger.info("[!] Attempting to remove inbound & outbound NACL rule for '%s'", acl.id)
             egress_flags = [True, False]
             [obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id, RuleNumber=100) for x in
-             egress_flags]
+             egress_flags]  # use list comp to pass in the True/False bool into the AWS API call; both are needed
             logger.info("[!] Successfully removed inbound & outbound NACL rules for '%s'\n", acl.id)
 
+    """Actions related to removing inbound/outbound rules from the default SG"""
     for sg in obj.sgs:
         if sg.group_name == 'default':
             sg_rule = obj.boto_client.describe_security_group_rules(
@@ -112,7 +129,7 @@ def main():
     get_region_object = create_boto3_client('ec2').describe_regions()
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] in SKIP_REGIONS]
     for current_region in region_list:
-        obj = Resources(resource='ec2', region=current_region)
+        obj = Resources(resource='ec2', region=current_region)  # instantiate the Resource object
         logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
         logger.info("========================================================================================\n")
         if args.sanitize_option == 'all':
