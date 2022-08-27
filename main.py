@@ -15,7 +15,7 @@ from delete_aws_resources_with_py import (
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
 logger = create_logger()
-SKIP_REGIONS = ["us-east-1", "us-west-2"]
+SKIP_REGIONS = ["us-east-1", "us-west-2"]  # Update this list for whatever region you **DO NOT WANT TO BE EFFECTED**
 
 
 def delete_resources(obj: Resource) -> None:
