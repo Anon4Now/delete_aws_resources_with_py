@@ -9,4 +9,3 @@ from .utils import (
 from .default_resources import (
     Resource
 )
-

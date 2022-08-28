@@ -9,8 +9,14 @@ from delete_aws_resources_with_py import (
     error_handler,
     getArgs,
     Resource
-
 )
+# from delete_aws_resources_with_py.default_resources import Resource
+# from delete_aws_resources_with_py.utils import (
+#     create_logger,
+#     create_boto3,
+#     error_handler,
+#     getArgs
+# )
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
