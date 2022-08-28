@@ -18,4 +18,4 @@ $AWS_DEFAULT_REGION= $aws_region
 $location = (Get-Location).Path
 
 # Run the container and pass in the created env variables -- use the docker image name as it will execute CMD [ "python3", "./main.py" ]
-docker run -e AWS_SECURITY_TOKEN=$AWS_SECURITY_TOKEN -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION -v ${location}:/run -t <DOCKER IMAGE NAME>
+docker run -e AWS_SECURITY_TOKEN=$AWS_SECURITY_TOKEN -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION -v ${location}:/run -t rundocker
