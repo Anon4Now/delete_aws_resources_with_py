@@ -6,11 +6,9 @@ from dataclasses import dataclass
 # Local app imports
 from delete_aws_resources_with_py import (
     create_boto3,
-    create_logger,
+    logger,
     error_handler
 )
-
-logger = create_logger()
 
 
 @dataclass
