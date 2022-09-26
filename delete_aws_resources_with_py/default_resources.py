@@ -15,12 +15,13 @@ from delete_aws_resources_with_py.errors import NoDefaultVpcFoundError
 class Resource:
     """
     Data-oriented class that takes in two instantiated boto3 objects [resource, client]
-    and uses them to return VPC related information.
+    and a region to return VPC related information.
     :param boto_resource: (required) Instantiated boto3 resource
     :param boto_client: (required) Instantiated boto3 client
     """
     boto_resource: Any['boto_resource']
     boto_client: Any['boto_client']
+    region: str
     igw: Collection = field(init=False, repr=False)
     subnet: Collection = field(init=False, repr=False)
     route_table: Collection = field(init=False, repr=False)
