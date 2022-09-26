@@ -1,5 +1,5 @@
 from .utils import (
-    create_logger,
+    logger,
     create_boto3,
     error_handler,
     getArgs
