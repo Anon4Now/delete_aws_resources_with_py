@@ -1,5 +1,5 @@
 """Module containing Utility Functions"""
-
+import json
 # Standard Library imports
 import logging
 import optparse
@@ -8,11 +8,14 @@ import optparse
 import boto3
 import botocore.exceptions
 
-
 #####################################
 # Get Environment Variables
 #####################################
-# REGION_LIST = os.environ.get("region_skip_list")  # use if needing to read from ENV vars
+with open('config.json', 'r') as f:
+    data = json.load(f)
+
+SKIP_REGION_LIST = data.get('skip_regions')
+
 
 #####################################
 # Create logger func
