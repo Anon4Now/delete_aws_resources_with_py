@@ -2,7 +2,7 @@
 
 # Standard Library imports
 from dataclasses import dataclass, field
-from typing import Any, Collection, Optional, Union
+from typing import Any, Collection, Optional
 
 # Third-party imports
 from botocore.exceptions import ClientError
