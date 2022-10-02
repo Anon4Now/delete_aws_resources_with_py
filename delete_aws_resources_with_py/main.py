@@ -2,6 +2,9 @@
 
 # !/usr/bin/env python
 
+# Third-party imports
+from botocore.exceptions import ClientError
+
 # Local app imports
 from delete_aws_resources_with_py import (
     logger,
@@ -161,7 +164,7 @@ def main():
     args = getArgs()
     get_region_object = create_boto3(service='ec2', boto_type='boto_client').describe_regions()
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if
-                   x['RegionName'] not in SKIP_REGIONS]
+                   x['RegionName'] in SKIP_REGIONS]
     for current_region in region_list:
         ssm_client = create_boto3(service='ssm', boto_type='boto_client', region=current_region)
         boto_resource = create_boto3(service='ec2', boto_type="boto_resource", region=current_region)
@@ -177,11 +180,12 @@ def main():
             logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
             logger.info("========================================================================================\n")
             if args.sanitize_option == 'delete':
-                Delete(obj)
-                Update.update_ssm_preferences(boto_client=boto_client, region=current_region)
+                del_resource = Delete(obj)
+                del_resource.run()
+                Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
             elif args.sanitize_option == "modify":
                 Update(obj)
-                Update.update_ssm_preferences(boto_client=boto_client, region=current_region)
+                Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
 
 
 if __name__ == "__main__":
