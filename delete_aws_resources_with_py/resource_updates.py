@@ -1,4 +1,5 @@
 """Module that contains classes for updating resources"""
+from typing import Union, Any
 
 # Third-party imports
 from botocore.exceptions import ClientError
@@ -121,13 +122,13 @@ class Delete:
     def run_delete(self) -> bool:
         """Method to run all the action methods and return True if all successful"""
         try:
-            if self.delete_default_igw() and \
-                    self.delete_default_subnet() and \
-                    self.delete_default_rtb() and \
-                    self.delete_default_nacl() and \
-                    self.delete_default_sg() and \
-                    self.delete_default_vpc():
-                return True
+            self.delete_default_igw()
+            self.delete_default_subnet()
+            self.delete_default_rtb()
+            self.delete_default_nacl()
+            self.delete_default_sg()
+            self.delete_default_vpc()
+            return True
         except ClientError:
             raise
 
@@ -142,6 +143,20 @@ class Update:
         :param resource_obj: (required) Instantiated Resource object with necessary data
         """
         self.resource_obj = resource_obj
+
+    def get_sg_rules(self, sg_id: str) -> dict:
+
+        sg_rule = self.resource_obj.boto_client.describe_security_group_rules(
+            Filters=[
+                {
+                    'Name': 'group-id',
+                    'Values': [
+                        sg_id
+                    ]
+                }
+            ]
+        )
+        return sg_rule
 
     def update_nacl_rules(self) -> bool:
         """Actions related to removing inbound/outbound rules from the default NACL"""
@@ -165,16 +180,7 @@ class Update:
         try:
             for sg in self.resource_obj.sgs:
                 if sg.group_name == 'default':
-                    sg_rule = self.resource_obj.boto_client.describe_security_group_rules(
-                        Filters=[
-                            {
-                                'Name': 'group-id',
-                                'Values': [
-                                    sg.id
-                                ]
-                            }
-                        ]
-                    )
+                    sg_rule = self.get_sg_rules(sg.id)
                     for el in sg_rule['SecurityGroupRules']:
                         if el['IsEgress']:
                             logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
