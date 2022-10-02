@@ -183,11 +183,13 @@ def main():
             if args.sanitize_option == 'delete':
                 Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
                 del_resource = Delete(obj)
-                del_resource.run_delete()
+                if del_resource.run_delete():
+                    logger.info("[+] **All VPC delete actions successfully performed in '%s' region**", current_region)
             elif args.sanitize_option == "modify":
                 Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
                 update_resource = Update(obj)
-                update_resource.run_update()
+                if update_resource.run_update():
+                    logger.info("[+] **All VPC update actions successfully performed in '%s' region**", current_region)
 
 
 if __name__ == "__main__":
