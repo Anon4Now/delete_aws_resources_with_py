@@ -19,8 +19,8 @@ class Resource:
     :param boto_resource: (required) Instantiated boto3 resource
     :param boto_client: (required) Instantiated boto3 client
     """
-    boto_resource: Any['boto_resource']
-    boto_client: Any['boto_client']
+    boto_resource: Any
+    boto_client: Any
     region: str
     igw: Collection = field(init=False, repr=False)
     subnet: Collection = field(init=False, repr=False)
@@ -55,7 +55,7 @@ class Resource:
             return vpc['VpcId']
 
     @property
-    def current_vpc_resource(self) -> Any['boto_resource']:
+    def current_vpc_resource(self) -> Any:
         """
         Property that will provide the resource content
         tied to the current VPC in the current region.
