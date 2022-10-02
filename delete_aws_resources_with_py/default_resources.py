@@ -7,9 +7,6 @@ from typing import Any, Collection, Optional
 # Third-party imports
 from botocore.exceptions import ClientError
 
-# Local App imports
-from delete_aws_resources_with_py.errors import NoDefaultVpcFoundError
-
 
 @dataclass
 class Resource:
