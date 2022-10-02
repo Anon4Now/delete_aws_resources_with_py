@@ -112,7 +112,7 @@ class Delete:
             logger.info("[!] Attempting to remove VPC-ID: '%s' for Region: '%s'", self.resource_obj.vpc_id,
                         self.resource_obj.region)
             self.resource_obj.current_vpc_resource.delete()
-            logger.info("[+] Default VPC in Region: '%s' was successfully detached and deleted\n\n", self.resource_obj.region)
+            logger.info("[+] Default VPC in Region: '%s' was successfully detached and deleted", self.resource_obj.region)
         except ClientError:
             raise
         else:
