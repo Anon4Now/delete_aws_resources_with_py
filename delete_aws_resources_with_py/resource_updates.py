@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 # Local App imports
 from delete_aws_resources_with_py.default_resources import Resource
-from delete_aws_resources_with_py.utils import logger
+from delete_aws_resources_with_py.utils import logger, error_handler
 
 
 class Delete:
@@ -118,6 +118,19 @@ class Delete:
             raise
         else:
             return True
+
+    def run(self) -> bool:
+        """Run all the action methods and return True if all successful"""
+        try:
+            if self.delete_default_igw() and \
+                    self.delete_default_subnet() and \
+                    self.delete_default_rtb() and \
+                    self.delete_default_nacl() and \
+                    self.delete_default_sg() and \
+                    self.delete_default_vpc():
+                return True
+        except ClientError:
+            raise
 
 
 class Update:
