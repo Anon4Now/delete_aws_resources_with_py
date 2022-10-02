@@ -8,6 +8,9 @@ import optparse
 import boto3
 import botocore.exceptions
 
+# Local App imports
+from delete_aws_resources_with_py.errors import NoDefaultVpcFoundError
+
 
 #####################################
 # Get Environment Variables
@@ -45,6 +48,8 @@ def error_handler(func):
         try:
             result = func(*args, **kwargs)
             return result
+        except NoDefaultVpcFoundError:
+            logger.error("No default VPC found in current region, please review and retry")
         except botocore.exceptions.NoCredentialsError as err:
             logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
         except botocore.exceptions.NoRegionError as err:
