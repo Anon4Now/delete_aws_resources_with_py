@@ -32,8 +32,6 @@ class Resource:
         """Populate the class attrs with data if a default VPC is found"""
         if self.vpc_id:
             self.set_collection_data()
-        else:
-            raise NoDefaultVpcFoundError
 
     @property
     def vpc_id(self) -> str:
