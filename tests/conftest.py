@@ -1,5 +1,5 @@
 """Module that contains pyfixture content to share"""
-
+import json
 # Standard Library imports
 import os
 
@@ -40,3 +40,9 @@ def get_resource_obj(ec2_client, ec2_resource):
     obj = Resource(boto_resource=ec2_resource, boto_client=ec2_client,
                    region='us-east-1')
     return obj
+
+
+@pytest.fixture
+def egress_rule():
+    with open('tests/json_files/egress_sg_rule.json', 'rb') as f:
+        return json.load(f)
