@@ -169,7 +169,8 @@ def main():
         ssm_client = create_boto3(service='ssm', boto_type='boto_client', region=current_region)
         boto_resource = create_boto3(service='ec2', boto_type="boto_resource", region=current_region)
         boto_client = create_boto3(service='ec2', boto_type="boto_client", region=current_region)
-        obj = Resource(boto_resource=boto_resource, boto_client=boto_client, region=current_region)  # instantiate the Resource object
+        obj = Resource(boto_resource=boto_resource, boto_client=boto_client,
+                       region=current_region)  # instantiate the Resource object
         if args.sanitize_option not in ['delete', 'modify']:  # validate cmd line arg
             logger.error("[-] Entered an incorrect option, use -h or --help for more information")
             break
@@ -180,12 +181,13 @@ def main():
             logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
             logger.info("========================================================================================\n")
             if args.sanitize_option == 'delete':
+                Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
                 del_resource = Delete(obj)
-                del_resource.run()
-                Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
+                del_resource.run_delete()
             elif args.sanitize_option == "modify":
-                Update(obj)
                 Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
+                update_resource = Update(obj)
+                update_resource.run_update()
 
 
 if __name__ == "__main__":
