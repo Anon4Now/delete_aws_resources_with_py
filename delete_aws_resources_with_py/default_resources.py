@@ -1,38 +1,38 @@
 """Module containing classes that are used to find and delete resources"""
 
 # Standard Library imports
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any, Collection, Optional
 
-# Local app imports
-from delete_aws_resources_with_py import (
-    create_boto3,
-    create_logger,
-    error_handler
-)
-
-logger = create_logger()
+# Third-party imports
+from botocore.exceptions import ClientError
 
 
 @dataclass
 class Resource:
-    resource: str = None
-    region: str = None
+    """
+    Data-oriented class that takes in two instantiated boto3 objects [resource, client]
+    and a region to return VPC related information.
+    :param boto_resource: (required) Instantiated boto3 resource
+    :param boto_client: (required) Instantiated boto3 client
+    """
+    boto_resource: Any
+    boto_client: Any
+    region: str
+    igw: Collection = field(init=False, repr=False)
+    subnet: Collection = field(init=False, repr=False)
+    route_table: Collection = field(init=False, repr=False)
+    acl: Collection = field(init=False, repr=False)
+    sgs: Collection = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        self.boto_resource = create_boto3(service=self.resource, boto_type="boto_resource", region=self.region)
-        self.boto_client = create_boto3(service=self.resource, boto_type="boto_client", region=self.region)
-        self.vpc_id = self.get_vpcs()
+        """Populate the class attrs with data if a default VPC is found"""
         if self.vpc_id:
-            self.current_vpc_resource = self.boto_resource.Vpc(self.vpc_id)
-            self.igw = self.current_vpc_resource.internet_gateways.all()
-            subnets = self.current_vpc_resource.subnets.all()
-            self.default_subnets = [self.boto_resource.Subnet(subnet.id) for subnet in subnets if subnet.default_for_az]
-            self.route_tables = self.current_vpc_resource.route_tables.all()
-            self.acls = self.current_vpc_resource.network_acls.all()
-            self.sgs = self.current_vpc_resource.security_groups.all()
+            self.set_collection_data()
 
-    @error_handler
-    def get_vpcs(self) -> str:
+    @property
+    def vpc_id(self) -> str:
+        """Property that will provide the string value of the VPC associated with the region"""
         vpcs = self.boto_client.describe_vpcs(
             Filters=[
                 {
@@ -48,3 +48,32 @@ class Resource:
         # add vpc's to instance attribute
         for vpc in vpcs['Vpcs']:
             return vpc['VpcId']
+
+    @property
+    def current_vpc_resource(self) -> Any:
+        """
+        Property that will provide the resource content
+        tied to the current VPC in the current region.
+        :return An instantiated boto3 resource for the current VPC
+        """
+        return self.boto_resource.Vpc(self.vpc_id)
+
+    def set_collection_data(self) -> Optional[bool]:
+        """
+        This method is used to populate the class attr collections with data.
+        It makes calls to the all() method on the resource items which updates
+        the attrs with collections of data.
+
+        :return: A boolean result if all calls were made successfully (True=success)
+        """
+        try:
+            self.igw = self.current_vpc_resource.internet_gateways.all()
+            _subnets = self.current_vpc_resource.subnets.all()
+            self.subnet = [self.boto_resource.Subnet(subnet.id) for subnet in _subnets if subnet.default_for_az]
+            self.route_table = self.current_vpc_resource.route_tables.all()
+            self.acl = self.current_vpc_resource.network_acls.all()
+            self.sgs = self.current_vpc_resource.security_groups.all()
+        except ClientError:
+            raise
+        else:
+            return True
