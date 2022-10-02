@@ -3,22 +3,21 @@
 # !/usr/bin/env python
 
 # Local app imports
-from delete_aws_resources_with_py import (
+from delete_aws_resources_with_py.utils import (
     logger,
     create_boto3,
     error_handler,
     getArgs,
-    Resource
+    SKIP_REGION_LIST
 )
 from delete_aws_resources_with_py.resource_updates import (
     Delete,
     Update
 )
+from delete_aws_resources_with_py.default_resources import Resource
+
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
-
-# TODO: MOVE THIS TO A CONFIG.JSON FILE
-SKIP_REGIONS = ["us-east-1", "us-west-2"]  # Update this list for whatever region you **DO NOT WANT TO BE EFFECTED**
 
 
 @error_handler
@@ -26,7 +25,7 @@ def main():
     args = getArgs()
     get_region_object = create_boto3(service='ec2', boto_type='boto_client').describe_regions()
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if
-                   x['RegionName'] in SKIP_REGIONS]
+                   x['RegionName'] in SKIP_REGION_LIST]
     for current_region in region_list:
         ssm_client = create_boto3(service='ssm', boto_type='boto_client', region=current_region)
         boto_resource = create_boto3(service='ec2', boto_type="boto_resource", region=current_region)
@@ -51,7 +50,7 @@ def main():
                 Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
                 update_resource = Update(obj)
                 if update_resource.run_update():
-                    logger.info("[+] **All VPC update actions successfully performed in '%s' region**", current_region)
+                    logger.info("[+] **All VPC update actions successfully performed in '%s' region**\n\n", current_region)
 
 
 if __name__ == "__main__":
