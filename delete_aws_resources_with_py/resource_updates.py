@@ -37,7 +37,7 @@ class Delete:
     def delete_default_subnet(self) -> bool:
         """Actions related to Subnet deletion from default VPC"""
         try:
-            for subnet in self.resource_obj.default_subnets:
+            for subnet in self.resource_obj.subnet:
                 logger.info("[!] Attempting to detach and delete Subnet-ID: '%s' in Region: '%s'", subnet.id,
                             self.resource_obj.region)
                 subnet.delete()
@@ -51,10 +51,10 @@ class Delete:
     def delete_default_rtb(self) -> bool:
         """Actions related to RouteTable deletion from default VPC; cannot delete the default RouteTable"""
         try:
-            for route_table in self.resource_obj.route_tables:
+            for route_table in self.resource_obj.route_table:
                 #  found the route table associations
                 associated_attribute = [routeTable.associations_attribute for routeTable in
-                                        self.resource_obj.route_tables]
+                                        self.resource_obj.route_table]
                 #  check to see if it is the default the route table, this cannot be removed
                 if [rtb_ass[0]['RouteTableId'] for rtb_ass in associated_attribute if rtb_ass[0]['Main'] is True]:
                     logger.info("[!] '%s'' is the main route table, this cannot be removed continuing\n",
@@ -73,7 +73,7 @@ class Delete:
     def delete_default_nacl(self) -> bool:
         """Actions related to NACL deletion from default VPC; cannot delete the default NACL"""
         try:
-            for acl in self.resource_obj.acls:
+            for acl in self.resource_obj.acl:
                 if acl.is_default:
                     logger.info("[!] '%s' is the default NACL, this cannot be removed continuing\n", acl.id)
                     continue
@@ -133,11 +133,12 @@ class Update:
 
     def update_nacl_rules(self) -> bool:
         """Actions related to removing inbound/outbound rules from the default NACL"""
-        for acl in self.resource_obj.acls:
+        for acl in self.resource_obj.acl:
             if acl.is_default:
                 logger.info("[!] Attempting to remove inbound & outbound NACL rule for '%s'", acl.id)
                 egress_flags = [True, False]
-                [self.resource_obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id, RuleNumber=100) for x in
+                [self.resource_obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id, RuleNumber=100)
+                 for x in
                  egress_flags]  # use list comp to pass in the True/False bool into the AWS API call; both are needed
                 logger.info("[!] Successfully removed inbound & outbound NACL rules for '%s'\n", acl.id)
 
@@ -160,14 +161,16 @@ class Update:
                         logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
                                     el['SecurityGroupRuleId'], self.resource_obj.region)
                         self.resource_obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
-                                                                     SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
+                                                                                   SecurityGroupRuleIds=[
+                                                                                       el['SecurityGroupRuleId']])
                         logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed\n",
                                     el['SecurityGroupRuleId'], self.resource_obj.region)
                     else:
                         logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
                                     el['SecurityGroupRuleId'], self.resource_obj.region)
                         self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
-                                                                      SecurityGroupRuleIds=[el['SecurityGroupRuleId']])
+                                                                                    SecurityGroupRuleIds=[
+                                                                                        el['SecurityGroupRuleId']])
                         logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed\n",
                                     el['SecurityGroupRuleId'], self.resource_obj.region)
 
