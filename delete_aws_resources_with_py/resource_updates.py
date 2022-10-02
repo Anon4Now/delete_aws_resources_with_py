@@ -133,46 +133,57 @@ class Update:
 
     def update_nacl_rules(self) -> bool:
         """Actions related to removing inbound/outbound rules from the default NACL"""
-        for acl in self.resource_obj.acl:
-            if acl.is_default:
-                logger.info("[!] Attempting to remove inbound & outbound NACL rule for '%s'", acl.id)
-                egress_flags = [True, False]
-                [self.resource_obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id, RuleNumber=100)
-                 for x in
-                 egress_flags]  # use list comp to pass in the True/False bool into the AWS API call; both are needed
-                logger.info("[!] Successfully removed inbound & outbound NACL rules for '%s'\n", acl.id)
+        try:
+            for acl in self.resource_obj.acl:
+                if acl.is_default:
+                    logger.info("[!] Attempting to remove inbound & outbound NACL rule for '%s'", acl.id)
+                    egress_flags = [True, False]
+                    [self.resource_obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id,
+                                                                            RuleNumber=100)
+                     for x in
+                     egress_flags]  # use list comp to pass in the True/False bool into the AWS API call; both are needed
+                    logger.info("[!] Successfully removed inbound & outbound NACL rules for '%s'\n", acl.id)
+        except ClientError:
+            raise
+        else:
+            return True
 
     def update_sg_rules(self) -> bool:
         """Actions related to removing inbound/outbound rules from the default SG"""
-        for sg in self.resource_obj.sgs:
-            if sg.group_name == 'default':
-                sg_rule = self.resource_obj.boto_client.describe_security_group_rules(
-                    Filters=[
-                        {
-                            'Name': 'group-id',
-                            'Values': [
-                                sg.id
-                            ]
-                        }
-                    ]
-                )
-                for el in sg_rule['SecurityGroupRules']:
-                    if el['IsEgress']:
-                        logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
-                                    el['SecurityGroupRuleId'], self.resource_obj.region)
-                        self.resource_obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
-                                                                                   SecurityGroupRuleIds=[
-                                                                                       el['SecurityGroupRuleId']])
-                        logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed\n",
-                                    el['SecurityGroupRuleId'], self.resource_obj.region)
-                    else:
-                        logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
-                                    el['SecurityGroupRuleId'], self.resource_obj.region)
-                        self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
-                                                                                    SecurityGroupRuleIds=[
-                                                                                        el['SecurityGroupRuleId']])
-                        logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed\n",
-                                    el['SecurityGroupRuleId'], self.resource_obj.region)
+        try:
+            for sg in self.resource_obj.sgs:
+                if sg.group_name == 'default':
+                    sg_rule = self.resource_obj.boto_client.describe_security_group_rules(
+                        Filters=[
+                            {
+                                'Name': 'group-id',
+                                'Values': [
+                                    sg.id
+                                ]
+                            }
+                        ]
+                    )
+                    for el in sg_rule['SecurityGroupRules']:
+                        if el['IsEgress']:
+                            logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
+                                        el['SecurityGroupRuleId'], self.resource_obj.region)
+                            self.resource_obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
+                                                                                       SecurityGroupRuleIds=[
+                                                                                           el['SecurityGroupRuleId']])
+                            logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed\n",
+                                        el['SecurityGroupRuleId'], self.resource_obj.region)
+                        else:
+                            logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
+                                        el['SecurityGroupRuleId'], self.resource_obj.region)
+                            self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
+                                                                                        SecurityGroupRuleIds=[
+                                                                                            el['SecurityGroupRuleId']])
+                            logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed\n",
+                                        el['SecurityGroupRuleId'], self.resource_obj.region)
+        except ClientError:
+            raise
+        else:
+            return True
 
     @staticmethod
     def update_ssm_preferences(boto_client, region) -> None:
