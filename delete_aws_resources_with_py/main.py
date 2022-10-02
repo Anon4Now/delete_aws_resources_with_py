@@ -10,9 +10,14 @@ from delete_aws_resources_with_py import (
     getArgs,
     Resource
 )
+from delete_aws_resources_with_py.resource_updates import (
+    Delete,
+    Update
+)
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
+# TODO: MOVE THIS TO A CONFIG.JSON FILE
 SKIP_REGIONS = ["us-east-1", "us-west-2"]  # Update this list for whatever region you **DO NOT WANT TO BE EFFECTED**
 
 
@@ -172,11 +177,11 @@ def main():
             logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
             logger.info("========================================================================================\n")
             if args.sanitize_option == 'delete':
-                delete_resources(obj)
-                update_ssm_preferences(ssm_client, current_region)
+                Delete(obj)
+                Update.update_ssm_preferences(boto_client=boto_client, region=current_region)
             elif args.sanitize_option == "modify":
-                update_resources(obj)
-                update_ssm_preferences(ssm_client, current_region)
+                Update(obj)
+                Update.update_ssm_preferences(boto_client=boto_client, region=current_region)
 
 
 if __name__ == "__main__":
