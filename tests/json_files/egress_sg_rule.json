@@ -1,0 +1,23 @@
+{
+  "SecurityGroupRules": [
+    {
+      "SecurityGroupRuleId": "string",
+      "GroupId": "string",
+      "GroupOwnerId": "string",
+      "IsEgress": true,
+      "IpProtocol": "string",
+      "FromPort": 123,
+      "ToPort": 123,
+      "CidrIpv4": "string",
+      "CidrIpv6": "string",
+      "PrefixListId": "string",
+      "ReferencedGroupInfo": {
+        "GroupId": "string",
+        "PeeringStatus": "string",
+        "UserId": "string",
+        "VpcId": "string",
+        "VpcPeeringConnectionId": "string"
+      }
+    }
+  ]
+}
