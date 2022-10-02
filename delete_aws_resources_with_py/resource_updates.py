@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 # Local App imports
 from delete_aws_resources_with_py.default_resources import Resource
-from delete_aws_resources_with_py.utils import logger, error_handler
+from delete_aws_resources_with_py.utils import logger
 
 
 class Delete:
