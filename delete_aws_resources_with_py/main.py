@@ -2,9 +2,6 @@
 
 # !/usr/bin/env python
 
-# Third-party imports
-from botocore.exceptions import ClientError
-
 # Local app imports
 from delete_aws_resources_with_py import (
     logger,
