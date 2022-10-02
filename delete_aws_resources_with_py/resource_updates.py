@@ -119,8 +119,8 @@ class Delete:
         else:
             return True
 
-    def run(self) -> bool:
-        """Run all the action methods and return True if all successful"""
+    def run_delete(self) -> bool:
+        """Method to run all the action methods and return True if all successful"""
         try:
             if self.delete_default_igw() and \
                     self.delete_default_subnet() and \
@@ -197,6 +197,14 @@ class Update:
             raise
         else:
             return True
+
+    def run_update(self) -> bool:
+        """Method to execute other action methods on class and return True if all successful"""
+        try:
+            if self.update_nacl_rules() and self.update_sg_rules():
+                return True
+        except ClientError:
+            raise
 
     @staticmethod
     def update_ssm_preferences(boto_client, region) -> None:
