@@ -25,7 +25,7 @@ def main():
     args = getArgs()
     get_region_object = create_boto3(service='ec2', boto_type='boto_client').describe_regions()
     region_list = [x['RegionName'] for x in get_region_object['Regions'] if
-                   x['RegionName'] in SKIP_REGION_LIST]
+                   x['RegionName'] not in SKIP_REGION_LIST]
     for current_region in region_list:
         ssm_client = create_boto3(service='ssm', boto_type='boto_client', region=current_region)
         boto_resource = create_boto3(service='ec2', boto_type="boto_resource", region=current_region)
