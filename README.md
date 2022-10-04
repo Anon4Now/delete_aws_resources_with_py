@@ -11,7 +11,7 @@ The default VPC resources that are created in these regions are below:
 - Default Route Table (\*cannot be deleted by itself -- will not prevent the deletion of VPC)
 - Default NACL (\*cannot be deleted by itself -- if the entire VPC is deleted this will also be deleted)
 - Default Security Group (\*cannot be deleted by itself -- if the entire VPC is deleted this will also be deleted)
-- Default VPC (\*cannot be deleted until all other resources are detached/deleted -- expect for those that cannot be deleted)
+- Default VPC (\*cannot be deleted until all other resources are detached/deleted -- except for those that cannot be deleted)
 
 ## Tool Functionality:
 
