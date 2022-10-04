@@ -18,6 +18,9 @@ The default VPC resources that are created in these regions are below:
 - Will use Boto3 SDK to programmtically interact with AWS
 - Will provide 2 command line arguments for the user to choose ['delete' OR 'modify']
 - Can be run from inside a Docker container if AWS credentials want to passed an environment variables to the container, or run from CLI
+- The 'Modify' option will remove the ingress & egress rules from both the default Security Group as well as the default NACL (this leaves no way in or out of the VPC)
+- The 'Delete' option will attempt to detach and delete all resources (that can be deleted) from the VPC and then delete the default VPC itself
+- Both the 'Modify' and 'Delete' options will also update the AWS SSM preferences to block SSM Document public access, this can easily be skipped
 
 ## Tool Requirements:
 
@@ -62,19 +65,18 @@ rootdir:.
 
 ## Using the Tool:
 
-#### Note: I will be running this tool from the CLI in the examples, I have also run it successfully using a Docker container
+#### Note: I will be running this tool from the CLI in the examples, I have also run it successfully using a Docker container.
 
-#### Step 1:
+#### Check Arg Menu:
 
-Run the binary or standalone exe to start CLI prompts.
-![start_program](https://user-images.githubusercontent.com/80045938/192074954-0cf77f16-3bfe-457c-a764-64261a1c420c.gif)
+Check what arguments are expected with the '-o' flag.
+![help_menu](https://user-images.githubusercontent.com/80045938/193708749-cc68bd69-0376-4759-b774-c0ca755ea5ee.gif)
 
-#### Step 2:
+#### Run with 'Modify' option:
 
-Download the wanted file, the program will generate SHA256, SHA1, and MD5 hashes.
-![gen_hashes](https://user-images.githubusercontent.com/80045938/192074964-0a41519b-c3e7-40e7-a3a0-cce12917a349.gif)
+Run the script with the '-o modify' option.
+![modify_option](https://user-images.githubusercontent.com/80045938/193708972-92546d2f-2f52-4c66-84d1-9c468b935dc0.gif)
 
-#### Step 3:
-
-**IMPORTANT** For this option to be presented to the user, a .env file will need to be present
-![get_api_results](https://user-images.githubusercontent.com/80045938/192074974-54a5731e-e2ca-4661-ad9d-480d14fad8d2.gif)
+#### Run with 'Delete' option:
+Run the script with the '-o delete' option.
+![delete_option](https://user-images.githubusercontent.com/80045938/193708991-612efaad-4f9a-48db-a2dc-99ca11618cbd.gif)
