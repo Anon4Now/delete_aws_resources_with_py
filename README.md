@@ -18,7 +18,7 @@ The default VPC resources that are created in these regions are below:
 - Will use Boto3 SDK to programmtically interact with AWS
 - Will provide 2 command line arguments for the user to choose ['delete' OR 'modify']
 - Can be run from inside a Docker container if AWS credentials want to passed an environment variables to the container, or run from CLI
-- The *'Modify'* option will remove the ingress & egress rules from both the default Security Group as well as the default NACL (this leaves no way in or out of the VPC)
+- The *'Modify'* option will remove the ingress & egress rules from both the default Security Group as well as the default NACL
 - The *'Delete'* option will attempt to detach and delete all resources (that can be deleted) from the VPC and then delete the default VPC itself
 - Both the 'Modify' and 'Delete' options will also update the AWS SSM preferences to block SSM Document public access, this can easily be skipped
 
