@@ -20,7 +20,7 @@ The default VPC resources that are created in these regions are below:
 - Can be run from inside a Docker container if AWS credentials want to passed an environment variables to the container, or run from CLI
 - The *'Modify'* option will remove the ingress & egress rules from both the default Security Group as well as the default NACL
 - The *'Delete'* option will attempt to detach and delete all resources (that can be deleted) from the VPC and then delete the default VPC itself
-- Both the 'Modify' and 'Delete' options will also update the AWS SSM preferences to block SSM Document public access, this can easily be skipped
+- Both the *'Modify'* and *'Delete'* options will also update the AWS SSM preferences to block SSM Document public access, this can easily be skipped
 
 ## Tool Requirements:
 
@@ -72,11 +72,11 @@ rootdir:.
 Check what arguments are expected with the '-o' flag.
 ![help_menu](https://user-images.githubusercontent.com/80045938/193708749-cc68bd69-0376-4759-b774-c0ca755ea5ee.gif)
 
-#### Run with 'Modify' option:
+#### Run with *'Modify'* option:
 
 Run the script with the '-o modify' option.
 ![modify_option](https://user-images.githubusercontent.com/80045938/193708972-92546d2f-2f52-4c66-84d1-9c468b935dc0.gif)
 
-#### Run with 'Delete' option:
+#### Run with *'Delete'* option:
 Run the script with the '-o delete' option.
 ![delete_option](https://user-images.githubusercontent.com/80045938/193708991-612efaad-4f9a-48db-a2dc-99ca11618cbd.gif)
