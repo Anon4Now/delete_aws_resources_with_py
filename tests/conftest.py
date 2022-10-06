@@ -6,7 +6,7 @@ import os
 # Third-party imports
 import pytest
 import boto3
-from moto import mock_ec2
+from moto import mock_ec2, mock_ssm
 
 # Local App imports
 from delete_aws_resources_with_py.default_resources import Resource
@@ -32,6 +32,13 @@ def ec2_client(aws_credentials):
 def ec2_resource(aws_credentials):
     with mock_ec2():
         conn = boto3.resource("ec2", region_name="us-east-1")
+        yield conn
+
+
+@pytest.fixture
+def ssm_client(aws_credentials):
+    with mock_ssm():
+        conn = boto3.client("ssm", region_name="us-east-1")
         yield conn
 
 

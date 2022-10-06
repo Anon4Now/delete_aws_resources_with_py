@@ -113,7 +113,8 @@ class Delete:
             logger.info("[!] Attempting to remove VPC-ID: '%s' for Region: '%s'", self.resource_obj.vpc_id,
                         self.resource_obj.region)
             self.resource_obj.current_vpc_resource.delete()
-            logger.info("[+] Default VPC in Region: '%s' was successfully detached and deleted", self.resource_obj.region)
+            logger.info("[+] Default VPC in Region: '%s' was successfully detached and deleted",
+                        self.resource_obj.region)
         except ClientError:
             raise
         else:
@@ -158,6 +159,14 @@ class Update:
         )
         return sg_rule
 
+    def revoke_ingress_sg_rule(self, sg_id, sg_rules):
+        self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=sg_id,
+                                                                    SecurityGroupRuleIds=[sg_rules])
+
+    def revoke_egress_sg_rule(self, sg_id, sg_rules):
+        self.resource_obj.boto_client.revoke_security_group_egress(GroupId=sg_id,
+                                                                   SecurityGroupRuleIds=[sg_rules])
+
     def update_nacl_rules(self) -> bool:
         """Actions related to removing inbound/outbound rules from the default NACL"""
         try:
@@ -185,17 +194,19 @@ class Update:
                         if el['IsEgress']:
                             logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
                                         el['SecurityGroupRuleId'], self.resource_obj.region)
-                            self.resource_obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
-                                                                                       SecurityGroupRuleIds=[
-                                                                                           el['SecurityGroupRuleId']])
+                            self.revoke_egress_sg_rule(sg.id, el['SecurityGroupRuleId'])
+                            # self.resource_obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
+                            #                                                            SecurityGroupRuleIds=[
+                            #                                                                el['SecurityGroupRuleId']])
                             logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed\n",
                                         el['SecurityGroupRuleId'], self.resource_obj.region)
                         else:
                             logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
                                         el['SecurityGroupRuleId'], self.resource_obj.region)
-                            self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
-                                                                                        SecurityGroupRuleIds=[
-                                                                                            el['SecurityGroupRuleId']])
+                            self.revoke_ingress_sg_rule(sg.id, el['SecurityGroupRuleId'])
+                            # self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
+                            #                                                             SecurityGroupRuleIds=[
+                            #                                                                 el['SecurityGroupRuleId']])
                             logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed",
                                         el['SecurityGroupRuleId'], self.resource_obj.region)
         except ClientError:
