@@ -12,8 +12,7 @@ from delete_aws_resources_with_py.utils import (
 )
 from delete_aws_resources_with_py.resource_updates import (
     UpdateNaclResource,
-    UpdateSgResource,
-    update_ssm_preferences
+    UpdateSgResource
 )
 from delete_aws_resources_with_py.resource_delete import Delete
 from delete_aws_resources_with_py.default_resources import Resource
@@ -31,7 +30,7 @@ def execute_changes_on_resources(user_arg: str, resource_obj: Resource, ssm_clie
     else:
         logger.info("[!] Performing '%s' actions on region: '%s'", user_arg, current_region)
         logger.info("========================================================================================\n")
-        update_ssm_preferences(boto_client=ssm_client, region=current_region)
+        # update_ssm_preferences(boto_client=ssm_client, region=current_region)
         if user_arg == 'delete':
             del_resource = Delete(resource_obj)
             if del_resource.delete_resources():
