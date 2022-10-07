@@ -7,14 +7,15 @@ from typing import Any
 from delete_aws_resources_with_py.utils import (
     logger,
     create_boto3,
-    error_handler,
     getArgs,
     SKIP_REGION_LIST,
 )
 from delete_aws_resources_with_py.resource_updates import (
-    Delete,
-    Update
+    UpdateNaclResource,
+    UpdateSgResource,
+    update_ssm_preferences
 )
+from delete_aws_resources_with_py.resource_delete import Delete
 from delete_aws_resources_with_py.default_resources import Resource
 from delete_aws_resources_with_py.errors import NoDefaultVpcExistsError, UserArgNotFoundError
 
@@ -30,16 +31,16 @@ def execute_changes_on_resources(user_arg: str, resource_obj: Resource, ssm_clie
     else:
         logger.info("[!] Performing '%s' actions on region: '%s'", user_arg, current_region)
         logger.info("========================================================================================\n")
+        update_ssm_preferences(boto_client=ssm_client, region=current_region)
         if user_arg == 'delete':
-            Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
             del_resource = Delete(resource_obj)
-            if del_resource.run_delete():
+            if del_resource.delete_resources():
                 logger.info("[+] **All VPC delete actions successfully performed in '%s' region**", current_region)
                 return True
         elif user_arg == "modify":
-            # Update.update_ssm_preferences(boto_client=ssm_client, region=current_region)
-            update_resource = Update(resource_obj)
-            if update_resource.update_sg_rules() and update_resource.update_nacl_rules():
+            update_sg_resource = UpdateSgResource(resource_obj)
+            update_nacl_resource = UpdateNaclResource(resource_obj)
+            if update_sg_resource.revoke_sg_rules() and update_nacl_resource.update_nacl_rules():
                 logger.info("[+] **All VPC update actions successfully performed in '%s' region**\n\n", current_region)
                 return True
 
