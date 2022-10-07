@@ -13,7 +13,7 @@ from delete_aws_resources_with_py.utils import logger
 class UpdateResource(ABC):
     @abstractmethod
     def __init__(self, resource_obj: Resource):
-        self.resource_obj = resource_obj
+        self.resource_obj = resource_obj  # pragma: no cover - this is an abstractmethod
 
 
 class UpdateNaclResource(UpdateResource):
@@ -64,9 +64,6 @@ class UpdateSgResource(UpdateResource):
                 if el['IsEgress']:
                     out_dict[k] = el['SecurityGroupRuleId']
         return out_dict
-        # logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
-        #             el['SecurityGroupRuleId'], self.resource_obj.region)
-        # self.revoke_egress_sg_rule(sg.id, el['SecurityGroupRuleId'])
 
     @staticmethod
     def find_ingress_sg_rule(sg_rules: Dict[str, list]):
@@ -78,7 +75,7 @@ class UpdateSgResource(UpdateResource):
                     out_dict[k] = el['SecurityGroupRuleId']
         return out_dict
 
-    def get_sg_rules(self, sg_id: str) -> dict:
+    def get_sg_rules(self, sg_id: str) -> dict:  # pragma: no cover - moto not created yet
 
         sg_rule = self.resource_obj.boto_client.describe_security_group_rules(
             Filters=[
@@ -101,7 +98,7 @@ class UpdateSgResource(UpdateResource):
                 out_dict[sg.id] = sg_rule['SecurityGroupRules']
         return out_dict
 
-    def revoke_ingress_sg_rule(self, sg_rules: Dict[str, str]):
+    def revoke_ingress_sg_rule(self, sg_rules: Dict[str, str]):  # pragma: no cover - not able to test this API call due to the mocking of the VPC
         try:
             for k, v in sg_rules.items():
                 logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
@@ -112,7 +109,7 @@ class UpdateSgResource(UpdateResource):
         except ClientError:
             raise
 
-    def revoke_egress_sg_rule(self, sg_rules: Dict[str, str]):
+    def revoke_egress_sg_rule(self, sg_rules: Dict[str, str]):  # pragma: no cover - not able to test this API call due to the mocking of the VPC
         try:
             for k, v in sg_rules.items():
                 logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
@@ -125,51 +122,11 @@ class UpdateSgResource(UpdateResource):
 
     def revoke_sg_rules(self):
         default_sg = self.check_for_default_sg()
-        # sg_egress_rules = self.find_egress_sg_rule(default_sg)
         if self.revoke_egress_sg_rule(self.find_egress_sg_rule(default_sg)):
             logger.info("[+] Outbound SG rule in Region: '%s' was successfully removed\n", self.resource_obj.region)
-        # sg_ingress_rules = self.find_ingress_sg_rule(default_sg)
         if self.revoke_ingress_sg_rule(self.find_ingress_sg_rule(default_sg)):
             logger.info("[+] Inbound SG rule in Region: '%s' was successfully removed\n", self.resource_obj.region)
         return True
-
-    # def update_sg_rules(self) -> bool:
-    #     """Actions related to removing inbound/outbound rules from the default SG"""
-    #     try:
-    #         for sg in self.resource_obj.sgs:
-    #             if sg.group_name == 'default':
-    #                 sg_rule = self.get_sg_rules(sg.id)
-    #                 for el in sg_rule['SecurityGroupRules']:
-    #                     if el['IsEgress']:
-    #                         logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
-    #                                     el['SecurityGroupRuleId'], self.resource_obj.region)
-    #                         self.revoke_egress_sg_rule(sg.id, el['SecurityGroupRuleId'])
-    #                         # self.resource_obj.boto_client.revoke_security_group_egress(GroupId=sg.id,
-    #                         #                                                            SecurityGroupRuleIds=[
-    #                         #                                                                el['SecurityGroupRuleId']])
-    #                         logger.info("[+] Outbound SG rule '%s' in Region: '%s' was successfully removed\n",
-    #                                     el['SecurityGroupRuleId'], self.resource_obj.region)
-    #                     else:
-    #                         logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
-    #                                     el['SecurityGroupRuleId'], self.resource_obj.region)
-    #                         self.revoke_ingress_sg_rule(sg.id, el['SecurityGroupRuleId'])
-    #                         # self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=sg.id,
-    #                         #                                                             SecurityGroupRuleIds=[
-    #                         #                                                                 el['SecurityGroupRuleId']])
-    #                         logger.info("[+] Inbound SG rule '%s' in Region: '%s' was successfully removed",
-    #                                     el['SecurityGroupRuleId'], self.resource_obj.region)
-    #     except ClientError:
-    #         raise
-    #     else:
-    #         return True
-
-    # def run_update(self) -> bool:
-    #     """Method to execute other action methods on class and return True if all successful"""
-    #     try:
-    #         if self.update_nacl_rules() and self.update_sg_rules():
-    #             return True
-    #     except ClientError:
-    #         raise
 
 
 def update_ssm_preferences(boto_client, region) -> None:
