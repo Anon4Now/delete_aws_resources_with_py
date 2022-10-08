@@ -7,7 +7,7 @@ from typing import Any, List, Tuple
 from delete_aws_resources_with_py.utils import (
     logger,
     create_boto3,
-    getArgs,
+    get_args,
     SKIP_REGION_LIST,
 )
 from delete_aws_resources_with_py.resource_updates import (
@@ -57,9 +57,9 @@ def create_boto_objects(current_region: str) -> Tuple[Any, Any, Any]:
     return ssm_client, boto_client, boto_resource
 
 
-def main():
-    args = getArgs()
-    if not check_user_arg_response(args.sanitize_option):
+def main() -> bool:
+    args = get_args()
+    if not check_user_arg_response(args):
         raise UserArgNotFoundError
     region_list = get_region_list()
     for current_region in region_list:
@@ -67,14 +67,14 @@ def main():
             boto_tup = create_boto_objects(current_region)
             obj = Resource(boto_resource=boto_tup[2], boto_client=boto_tup[1],
                            region=current_region)  # instantiate the Resource object
-            logger.info("[!] Performing '%s' actions on region: '%s'", args.sanitize_option, current_region)
+            logger.info("[!] Performing '%s' actions on region: '%s'", args, current_region)
             logger.info("========================================================================================\n")
-            if execute_changes_on_resources(obj, args.sanitize_option):
-                logger.info("[+] **All VPC %s actions successfully performed in '%s' region**", args.sanitize_option,
+            if execute_changes_on_resources(obj, args):
+                logger.info("[+] **All VPC %s actions successfully performed in '%s' region**", args,
                             current_region)
-
+                return True
         except NoDefaultVpcExistsError:
-            logger.info("[!] Region: '%s' does not have a default VPC, continuing", current_region)
+            logger.info("[!] Region: '%s' does not have a default VPC, continuing\n", current_region)
             continue
 
 
