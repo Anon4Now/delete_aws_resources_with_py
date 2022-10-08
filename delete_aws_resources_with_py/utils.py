@@ -66,7 +66,7 @@ def error_handler(func):
 parser = optparse.OptionParser()
 
 
-def getArgs():
+def get_args():
     parser.add_option(
         "-o",
         "--option",
@@ -92,7 +92,7 @@ def getArgs():
     if not options.sanitize_option:
         parser.error("[-] Please specify an option flag, --help for more info")
     else:
-        return options
+        return options.sanitize_option
 
 
 #######################################
