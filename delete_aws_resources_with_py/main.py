@@ -17,6 +17,7 @@ from delete_aws_resources_with_py.resource_updates import (
 from delete_aws_resources_with_py.resource_delete import Delete
 from delete_aws_resources_with_py.default_resources import Resource
 from delete_aws_resources_with_py.errors import NoDefaultVpcExistsError, UserArgNotFoundError
+from delete_aws_resources_with_py.change_ssm_preferences import update_ssm_preferences
 
 
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
@@ -25,7 +26,6 @@ from delete_aws_resources_with_py.errors import NoDefaultVpcExistsError, UserArg
 def execute_changes_on_resources(resource_obj: Resource, user_arg: str) -> bool:
     if not resource_obj.vpc_id:
         raise NoDefaultVpcExistsError
-    # update_ssm_preferences(boto_client=ssm_client, region=current_region)
     if user_arg == 'delete':
         del_resource = Delete(resource_obj)
         if del_resource.delete_resources():
@@ -69,6 +69,7 @@ def main() -> bool:
                            region=current_region)  # instantiate the Resource object
             logger.info("[!] Performing '%s' actions on region: '%s'", args, current_region)
             logger.info("========================================================================================\n")
+            update_ssm_preferences(boto_client=boto_tup[0], region=current_region)
             if execute_changes_on_resources(obj, args):
                 logger.info("[+] **All VPC %s actions successfully performed in '%s' region**", args,
                             current_region)
