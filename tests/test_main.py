@@ -93,24 +93,3 @@ def test_main_func_raises_bad_arg(ec2_client, ec2_resource, ssm_client, mocker):
 
     with pytest.raises(UserArgNotFoundError):
         main()
-
-
-# def test_main_func_raises_no_vpc(ec2_client, ec2_resource, ssm_client, mocker):
-#     def mock_get_args():
-#         return 'delete'
-#
-#     mocker.patch('delete_aws_resources_with_py.main.get_args', mock_get_args)
-#
-#     def mock_get_regions():
-#         return 'us-east-1'
-#
-#     mocker.patch('delete_aws_resources_with_py.main.get_region_list', mock_get_regions)
-#
-#     def mock_create_boto_objects(*args):
-#         return ssm_client, ec2_client, ec2_resource
-#
-#     mocker.patch('delete_aws_resources_with_py.main.create_boto_objects', mock_create_boto_objects)
-#
-#     with pytest.raises(NoDefaultVpcExistsError):
-#         main()
-#         main()
