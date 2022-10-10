@@ -111,25 +111,12 @@ def create_boto3(service: str, boto_type: str, region=None, access_key=None, sec
     :param session_token: (optional) AWS STS Session Token string obtained for cross-account assume role actions (optional)
     :return: Initialized boto3 client or resource
     """
-    if boto_type not in ['boto_client', 'boto_resource']:
+    if boto_type == 'boto_client':
+        return boto3.client(service, region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+
+    elif boto_type == 'boto_resource':
+        return boto3.resource(service, region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+
+    else:
         logger.error(
             "[-] boto_type param passed to create_boto3 not valid, can either be 'boto_client' or 'boto_resource'")
-    else:
-        if boto_type == 'boto_client':
-            boto_client = boto3.client(
-                service,
-                region_name=region,
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key,
-                aws_session_token=session_token
-            )
-            return boto_client
-        else:
-            boto_resource = boto3.resource(
-                service,
-                region_name=region,
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key,
-                aws_session_token=session_token
-            )
-        return boto_resource
