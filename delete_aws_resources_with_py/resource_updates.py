@@ -77,17 +77,7 @@ class UpdateSgResource(UpdateResource):
 
     def get_sg_rules(self, sg_id: str) -> dict:  # pragma: no cover - moto not created yet
 
-        sg_rule = self.resource_obj.boto_client.describe_security_group_rules(
-            Filters=[
-                {
-                    'Name': 'group-id',
-                    'Values': [
-                        sg_id
-                    ]
-                }
-            ]
-        )
-        return sg_rule
+        return self.resource_obj.boto_client.describe_security_group_rules(Filters=[{'Name': 'group-id', 'Values': [sg_id]}])
 
     def check_for_default_sg(self) -> Dict[str, list]:
         out_dict = {}
