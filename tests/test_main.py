@@ -8,7 +8,6 @@ from delete_aws_resources_with_py.main import (
     get_region_list,
     create_boto_objects
 )
-from delete_aws_resources_with_py.utils import create_boto3
 from delete_aws_resources_with_py.errors import UserArgNotFoundError, NoDefaultVpcExistsError
 
 from delete_aws_resources_with_py.default_resources import Resource
@@ -73,7 +72,7 @@ def test_main_func_works(ec2_client, ec2_resource, ssm_client, mocker):
 
     mocker.patch('delete_aws_resources_with_py.main.SsmPreference.update_public_service_setting_check',
                  mock_update_public_service_setting)
-    
+
     def mock_get_args():
         return 'delete'
 
