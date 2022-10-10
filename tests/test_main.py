@@ -62,6 +62,18 @@ def test_execute_changes_on_resources(ec2_client, ec2_resource, mocker, egress_r
 
 
 def test_main_func_works(ec2_client, ec2_resource, ssm_client, mocker):
+    def mock_get_current_service_setting(*args):
+        return True
+
+    mocker.patch('delete_aws_resources_with_py.main.SsmPreference.get_current_service_setting_check',
+                 mock_get_current_service_setting)
+
+    def mock_update_public_service_setting(*args):
+        return True
+
+    mocker.patch('delete_aws_resources_with_py.main.SsmPreference.update_public_service_setting_check',
+                 mock_update_public_service_setting)
+    
     def mock_get_args():
         return 'delete'
 
