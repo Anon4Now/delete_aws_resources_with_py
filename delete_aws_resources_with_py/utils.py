@@ -48,10 +48,6 @@ def error_handler(func):
         try:
             result = func(*args, **kwargs)
             return result
-        except botocore.exceptions.NoCredentialsError as err:
-            logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
-        except botocore.exceptions.NoRegionError as err:
-            logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
         except botocore.exceptions.ClientError as err:
             logger.error("ClientError: error=%s func=%s", err, func.__name__)
         except Exception as err:
