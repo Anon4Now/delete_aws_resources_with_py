@@ -53,3 +53,29 @@ def get_resource_obj(ec2_client, ec2_resource):
 def egress_rule():
     with open('tests/json_files/egress_sg_rule.json', 'rb') as f:
         return json.load(f)
+
+
+class MockResponses:
+    def __init__(self):
+        self.client = {}
+
+    def get_service_setting(self, *args, **kwargs):
+        return {
+            'ServiceSetting': {
+                'SettingValue': 'Enable'
+            }
+        }
+
+    def update_service_setting(self, *args, **kwargs):
+        return {
+            'ResponseMetadata': {
+                'HTTPStatusCode': 200
+            }
+        }
+
+    def describe_security_group_rules(self, *args, **kwargs):
+        return egress_rule
+
+@pytest.fixture
+def fake_boto_client():
+    return MockResponses()
