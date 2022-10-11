@@ -17,14 +17,14 @@ class SsmPreference:
     def get_current_service_setting_check(self) -> bool:
         """Check to see what the current service setting is."""
         return self.ssm_client.get_service_setting(SettingId=self.public_share_setting)['ServiceSetting'][
-                   'SettingValue'] == 'Enable'  # pragma: no cover - moto mock not implemented
+                   'SettingValue'] == 'Enable'
 
     def update_public_service_setting_check(self, share_setting_status: str) -> bool:
         """Make changes to the share service setting"""
         return self.ssm_client.update_service_setting(
             SettingId=self.public_share_setting,
             SettingValue=share_setting_status)['ResponseMetadata']['HTTPStatusCode'] \
-            == 200  # pragma: no cover - moto mock not implemented
+            == 200
 
     def check_ssm_preferences(self) -> None:
         """
