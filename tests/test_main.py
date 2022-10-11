@@ -41,9 +41,9 @@ def test_create_boto_objects(mocker):
     assert create_boto_objects('us-east-1') == ({}, {}, {})
 
 
-def test_execute_changes_on_resources(ec2_client, ec2_resource, mocker, egress_rule):
+def test_execute_changes_on_resources(ec2_client, ec2_resource, mocker, sg_egress_ingress_rule):
     def mock_get_sg_rules(*args, **kwargs):
-        return egress_rule
+        return sg_egress_ingress_rule
 
     mocker.patch('delete_aws_resources_with_py.main.UpdateSgResource.get_sg_rules', mock_get_sg_rules)
 
