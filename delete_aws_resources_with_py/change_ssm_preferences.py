@@ -60,6 +60,6 @@ class SsmPreference:
         logger.info(
             "[!] SSM Document preferences allows public access with status 'Enable' in Region: '%s', attempting to update",
             self.region)
-        if self.update_public_service_setting_check:
+        if self.update_public_service_setting_check('Disable'):
             logger.info("[+] Preferences successfully updated to 'Disable' in Region: '%s'\n", self.region)
             return
