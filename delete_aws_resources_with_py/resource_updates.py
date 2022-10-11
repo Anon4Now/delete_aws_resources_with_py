@@ -1,5 +1,5 @@
 """Module that contains classes for updating resources"""
-from typing import Union, Any, List, Dict
+from typing import Any, Dict
 from abc import ABC, abstractmethod
 
 # Third-party imports
@@ -56,8 +56,7 @@ class UpdateSgResource(UpdateResource):
         self.resource_obj = resource_obj
 
     @staticmethod
-    def find_egress_sg_rule(sg_rules: Dict[str, list]):
-        # return {key: val['SecurityGroupRules'] for key, val in sg_rules.items()}
+    def find_egress_sg_rule(sg_rules: Dict[Any, list]):
         out_dict = {}
         for k, v in sg_rules.items():
             for el in v:
@@ -66,8 +65,7 @@ class UpdateSgResource(UpdateResource):
         return out_dict
 
     @staticmethod
-    def find_ingress_sg_rule(sg_rules: Dict[str, list]):
-        # return {key: val['SecurityGroupRules'] for key, val in sg_rules.items()}
+    def find_ingress_sg_rule(sg_rules: Dict[Any, list]):
         out_dict = {}
         for k, v in sg_rules.items():
             for el in v:
@@ -75,20 +73,19 @@ class UpdateSgResource(UpdateResource):
                     out_dict[k] = el['SecurityGroupRuleId']
         return out_dict
 
-    def get_sg_rules(self, sg_id: str) -> dict:  # pragma: no cover - moto not created yet
+    def get_sg_rules(self, sg_id: str) -> Dict[str, str]:
 
         return self.resource_obj.boto_client.describe_security_group_rules(Filters=[{'Name': 'group-id', 'Values': [sg_id]}])
 
-    def check_for_default_sg(self) -> Dict[str, list]:
+    def check_for_default_sg(self) -> Dict[Any, Any]:
         out_dict = {}
-        # return {sg.id: self.get_sg_rules(sg.id) for sg in self.resource_obj.sgs if sg.group_name == 'default'}
         for sg in self.resource_obj.sgs:
             if sg.group_name == 'default':
                 sg_rule = self.get_sg_rules(sg.id)
                 out_dict[sg.id] = sg_rule['SecurityGroupRules']
         return out_dict
 
-    def revoke_ingress_sg_rule(self, sg_rules: Dict[str, str]):  # pragma: no cover - not able to test this API call due to the mocking of the VPC
+    def revoke_ingress_sg_rule(self, sg_rules: Dict[str, str]) -> bool:
         try:
             for k, v in sg_rules.items():
                 logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
@@ -99,7 +96,7 @@ class UpdateSgResource(UpdateResource):
         except ClientError:
             raise
 
-    def revoke_egress_sg_rule(self, sg_rules: Dict[str, str]):  # pragma: no cover - not able to test this API call due to the mocking of the VPC
+    def revoke_egress_sg_rule(self, sg_rules: Dict[str, str]) -> bool:
         try:
             for k, v in sg_rules.items():
                 logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
