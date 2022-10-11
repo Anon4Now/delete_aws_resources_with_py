@@ -1,7 +1,8 @@
 """Module that contains pyfixture content to share"""
-import json
 # Standard Library imports
 import os
+import json
+from collections import namedtuple
 
 # Third-party imports
 import pytest
@@ -50,7 +51,7 @@ def get_resource_obj(ec2_client, ec2_resource):
 
 
 @pytest.fixture
-def egress_rule():
+def sg_egress_ingress_rule():
     with open('tests/json_files/egress_sg_rule.json', 'rb') as f:
         return json.load(f)
 
@@ -58,6 +59,7 @@ def egress_rule():
 class MockResponses:
     def __init__(self):
         self.client = {}
+        self.resource = {}
 
     def get_service_setting(self, *args, **kwargs):
         return {
@@ -74,8 +76,29 @@ class MockResponses:
         }
 
     def describe_security_group_rules(self, *args, **kwargs):
-        return egress_rule
+        return 'sgr-0f5d697d6bde6f9da'
+
+    def revoke_security_group_ingress(self, *args, **kwargs):
+        return True
+
+    def revoke_security_group_egress(self, *args, **kwargs):
+        return True
+
 
 @pytest.fixture
 def fake_boto_client():
     return MockResponses()
+
+
+class MockResource:
+    def __init__(self, boto_client, boto_resource):
+        self.boto_client = boto_client
+        self.boto_resource = boto_resource
+        self.region = 'us-east-1'
+        security_groupsCollection = namedtuple('security_groupsCollection', ['id', 'group_name'])
+        self.sgs = security_groupsCollection(sg_egress_ingress_rule, 'default')
+
+
+@pytest.fixture
+def fake_resource_obj(fake_boto_client):
+    return MockResource(fake_boto_client, fake_boto_client)
