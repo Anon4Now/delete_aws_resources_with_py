@@ -60,7 +60,7 @@ class Delete:
                     logger.info("[!] '%s'' is the main route table, this cannot be removed continuing\n",
                                 route_table.id)
                     continue
-                logger.info("[!] Attempting to detach and delete Subnet-ID: '%s' in Region: '%s'", route_table.id,
+                logger.info("[!] Attempting to detach and delete RTB: '%s' in Region: '%s'", route_table.id,
                             self.resource_obj.region)
                 self.resource_obj.boto_resource.RouteTable(route_table.id).delete()
                 logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", route_table.id,
@@ -74,15 +74,14 @@ class Delete:
         """Actions related to NACL deletion from default VPC; cannot delete the default NACL"""
         try:
             for acl in self.resource_obj.acl:
-                if acl.is_default:
-                    logger.info("[!] '%s' is the default NACL, this cannot be removed continuing\n", acl.id)
-                    continue
-                else:
+                if not acl.is_default:
                     logger.info("[!] Attempting to remove NACL-ID: '%s' for Region: '%s'", acl.id,
                                 self.resource_obj.region)
                     acl.delete()
                     logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", acl.id,
                                 self.resource_obj.region)
+                logger.info("[!] '%s' is the default NACL, this cannot be removed continuing\n", acl.id)
+                continue
         except ClientError:
             raise
         else:
@@ -92,15 +91,14 @@ class Delete:
         """Actions related to SG deletion from default VPC; cannot delete the default SG"""
         try:
             for sg in self.resource_obj.sgs:
-                if sg.group_name == 'default':
-                    logger.info("[!] '%s' is the default SG, this cannot be removed continuing\n", sg.id)
-                    continue
-                else:
+                if sg.group_name != 'default':
                     logger.info("[!] Attempting to remove SG-ID: '%s' for Region: '%s'", sg.id,
                                 self.resource_obj.region)
                     sg.delete()
                     logger.info("[+] '%s' in Region: '%s' was successfully detached and deleted\n", sg.id,
                                 self.resource_obj.region)
+                logger.info("[!] '%s' is the default SG, this cannot be removed continuing\n", sg.id)
+                continue
         except ClientError:
             raise
         else:
