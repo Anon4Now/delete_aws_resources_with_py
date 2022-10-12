@@ -20,7 +20,14 @@ class Delete:
         self.resource_obj = resource_obj
 
     def delete_default_igw(self) -> bool:
-        """Actions related to Internet Gateway deletion from default VPC"""
+        """
+        Actions related to Internet Gateway deletion from default VPC.
+
+        This method will take the current regions igw id and detach from the default VPC and then delete.
+        :return A boolean result that represents whether the action was successfully completed
+
+        :raise A Boto3 AWS ClientError that was created during the API call
+        """
         try:
             for igw in self.resource_obj.igw:
                 logger.info("[!] Attempting to detach and delete IGW-ID: '%s' in Region: '%s'", igw.id,
@@ -35,7 +42,15 @@ class Delete:
             return True
 
     def delete_default_subnet(self) -> bool:
-        """Actions related to Subnet deletion from default VPC"""
+        """
+        Actions related to Subnet deletion from default VPC.
+
+        This method will the current regions subnet id and loop through all created subnets
+        in the default VPC. It will delete each found subnet.
+        :return A boolean result that represents whether the action was successfully completed
+
+        :raise A Boto3 AWS ClientError that was created during the API call
+        """
         try:
             for subnet in self.resource_obj.subnet:
                 logger.info("[!] Attempting to detach and delete Subnet-ID: '%s' in Region: '%s'", subnet.id,
@@ -49,7 +64,16 @@ class Delete:
             return True
 
     def delete_default_rtb(self) -> bool:
-        """Actions related to RouteTable deletion from default VPC; cannot delete the default RouteTable"""
+        """
+        Actions related to RouteTable deletion from default VPC; cannot delete the default RouteTable.
+
+        This method will look at what the current regions route table(s) and determine
+        if it is the 'Main' rtb, or if it is a custom rtb. If it is custom it will delete, and
+        if it is the 'Main' rtb it will be skipped.
+        :return A boolean result that represents whether the action was successfully completed
+
+        :raise A Boto3 AWS ClientError that was created during the API call
+        """
         try:
             for route_table in self.resource_obj.route_table:
                 #  found the route table associations
@@ -71,7 +95,16 @@ class Delete:
             return True
 
     def delete_default_nacl(self) -> bool:
-        """Actions related to NACL deletion from default VPC; cannot delete the default NACL"""
+        """
+        Actions related to NACL deletion from default VPC; cannot delete the default NACL.
+
+        This method will look at the current regions NACL(s) and determine whether
+        the NACL is the default VPC NACL or a custom NACL. If it is a custom NACL it will be
+        deleted, if it is the default VPC NACL it will be skipped.
+        :return A boolean result that represents whether the action was successfully completed
+
+        :raise A Boto3 AWS ClientError that was created during the API call
+        """
         try:
             for acl in self.resource_obj.acl:
                 if not acl.is_default:
@@ -88,7 +121,16 @@ class Delete:
             return True
 
     def delete_default_sg(self) -> bool:
-        """Actions related to SG deletion from default VPC; cannot delete the default SG"""
+        """
+        Actions related to SG deletion from default VPC; cannot delete the default SG.
+
+        This method will look at the current regions SG(s) and determine whether
+        the SG is the default VPC SG or a custom SG. If it is a custom SG it will be
+        deleted, if it is the default VPC SG it will be skipped.
+        :return A boolean result that represents whether the action was successfully completed
+
+        :raise A Boto3 AWS ClientError that was created during the API call
+        """
         try:
             for sg in self.resource_obj.sgs:
                 if sg.group_name != 'default':
@@ -105,7 +147,16 @@ class Delete:
             return True
 
     def delete_default_vpc(self) -> bool:
-        """Actions related to the deletion of the default VPC"""
+        """
+        Actions related to the deletion of the default VPC.
+
+        This method performs the actual deletion of the default VPC and needs to be
+        the last method called to avoid errors with resources still existing
+        (excluding default NACL, SG, and RTB).
+        :return A boolean result that represents whether the action was successfully completed
+
+        :raise A Boto3 AWS ClientError that was created during the API call
+        """
         try:
             logger.info("[!] Attempting to remove VPC-ID: '%s' for Region: '%s'", self.resource_obj.vpc_id,
                         self.resource_obj.region)
@@ -118,7 +169,16 @@ class Delete:
             return True
 
     def delete_resources(self) -> bool:
-        """Method to run all the action methods and return True if all successful"""
+        """
+        Method to run all the action methods and return True if all successful.
+
+        This is the main method called that handles all the calls to the
+        other methods in the order necessary to perform the default VPC
+        deletion step.
+        :return A boolean result that represents whether all method calls were successfully completed
+
+        :raise A Boto3 AWS ClientError that was created during the API call
+        """
         try:
             self.delete_default_igw()
             self.delete_default_subnet()
