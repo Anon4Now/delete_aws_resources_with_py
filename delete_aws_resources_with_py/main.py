@@ -1,7 +1,11 @@
 """Module containing the main script to run"""
-from typing import Any, List, Tuple
 
 # !/usr/bin/env python
+
+# Standard Library imports
+from typing import List, NamedTuple
+from collections import namedtuple
+
 
 # Local app imports
 from delete_aws_resources_with_py.utils import (
@@ -24,6 +28,17 @@ from delete_aws_resources_with_py.change_ssm_preferences import SsmPreference
 
 
 def execute_changes_on_resources(resource_obj: Resource, user_arg: str) -> bool:
+    """
+    Function that instantiates the classes from the resource_* modules.
+
+    Uses the methods to either delete the resources or update them based on user arg.
+
+    :param resource_obj: (required) An instantiated resource object from default_resources module
+    :param user_arg: (required) A string representing the arg passed by user (i.e., 'delete' or 'modify')
+    :return: A boolean representing whether the requested action was completed successfully
+
+    :raise A custom error class that will be used to log that no default VPC exists in the current region
+    """
     if not resource_obj.vpc_id:
         raise NoDefaultVpcExistsError
     if user_arg == 'delete':
@@ -38,26 +53,59 @@ def execute_changes_on_resources(resource_obj: Resource, user_arg: str) -> bool:
 
 
 def check_user_arg_response(user_arg: str) -> bool:
-    """Check to see if arg passed is valid"""
+    """
+    Check to see if arg passed from user is valid.
+
+    Needs to be either 'delete' or 'modify', will raise error is neither.
+
+    :param user_arg: (required) A string representing the arg passed at the CLI
+    :return A boolean representing whether the arg is one of the two correct options
+
+    :raise A custom error that will log out that the arg passed was incorrect
+    """
     if user_arg not in ['delete', 'modify']:  # validate cmd line arg
         raise UserArgNotFoundError
     return True
 
 
 def get_region_list() -> List[str]:
-    """Return a list of regions to be iterated through"""
+    """
+    Return a list of active regions to be iterated through.
+
+    :return A list containing all active regions NOT listed in the SKIP_REGION_LIST (config.json)
+    """
     get_region_object = create_boto3(service='ec2', boto_type='boto_client').describe_regions()
     return [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] in SKIP_REGION_LIST]
 
 
-def create_boto_objects(current_region: str) -> Tuple[Any, Any, Any]:
-    ssm_client = create_boto3(service='ssm', boto_type='boto_client', region=current_region)
-    boto_resource = create_boto3(service='ec2', boto_type="boto_resource", region=current_region)
-    boto_client = create_boto3(service='ec2', boto_type="boto_client", region=current_region)
-    return ssm_client, boto_client, boto_resource
+def create_boto_objects(current_region: str) -> NamedTuple:
+    """
+    Basic function that will generate three instantiated boto objects.
+
+    These will be returned as a NamedTuple.
+
+    :param current_region: (required) A string containing the current region, used to instantiate the objects
+    :return: A NamedTuple containing the instantiated boto objects
+    """
+    boto_tuple = namedtuple('boto_tuple', ['ssm_client', 'ec2_resource', 'ec2_client'])
+    return boto_tuple(
+        create_boto3(service='ssm', boto_type='boto_client', region=current_region),
+        create_boto3(service='ec2', boto_type="boto_resource", region=current_region),
+        create_boto3(service='ec2', boto_type="boto_client", region=current_region)
+    )
 
 
-def main() -> bool:
+def main() -> None:
+    """
+    Main function that will call the other functions in the main module.
+
+    This will log out the details on the actions being attempted and whether
+    all actions performed successfully.
+
+    :raise A custom error (UserArgNotFoundError) that represents when the user enters an incorrect arg
+
+    :raise A custom error (NoDefaultVpcExistsError) that represents when a region doesn't have a default VPC
+    """
     args = get_args()
     if not check_user_arg_response(args):
         raise UserArgNotFoundError
@@ -65,15 +113,14 @@ def main() -> bool:
     for current_region in region_list:
         try:
             boto_tup = create_boto_objects(current_region)
-            obj = Resource(boto_resource=boto_tup[2], boto_client=boto_tup[1],
+            obj = Resource(boto_resource=boto_tup.ec2_resource, boto_client=boto_tup.ec2_client,
                            region=current_region)  # instantiate the Resource object
             logger.info("[!] Performing '%s' actions on region: '%s'", args, current_region)
             logger.info("========================================================================================\n")
-            SsmPreference(ssm_client=boto_tup[0], region=current_region).check_ssm_preferences()
+            SsmPreference(ssm_client=boto_tup.ssm_client, region=current_region).check_ssm_preferences()
             if execute_changes_on_resources(obj, args):
                 logger.info("[+] **All VPC %s actions successfully performed in '%s' region**", args,
                             current_region)
-                return True
         except NoDefaultVpcExistsError:
             logger.info("[!] Region: '%s' does not have a default VPC, continuing\n", current_region)
             continue
