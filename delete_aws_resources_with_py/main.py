@@ -119,7 +119,7 @@ def main() -> None:
             logger.info("========================================================================================\n")
             SsmPreference(ssm_client=boto_tup.ssm_client, region=current_region).check_ssm_preferences()
             if execute_changes_on_resources(obj, args):
-                logger.info("[+] **All VPC %s actions successfully performed in '%s' region**", args,
+                logger.info("[+] **All VPC %s actions successfully performed in '%s' region**\n\n", args,
                             current_region)
         except NoDefaultVpcExistsError:
             logger.info("[!] Region: '%s' does not have a default VPC, continuing\n", current_region)
