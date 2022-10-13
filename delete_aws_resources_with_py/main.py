@@ -75,7 +75,7 @@ def get_region_list() -> List[str]:
     :return A list containing all active regions NOT listed in the SKIP_REGION_LIST (config.json)
     """
     get_region_object = create_boto3(service='ec2', boto_type='boto_client').describe_regions()
-    return [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] in SKIP_REGION_LIST]
+    return [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] not in SKIP_REGION_LIST]
 
 
 def create_boto_objects(current_region: str):
