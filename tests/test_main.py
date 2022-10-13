@@ -1,5 +1,6 @@
 """Module containing tests for main module in script."""
 import pytest
+from collections import namedtuple
 
 from delete_aws_resources_with_py.main import (
     main,
@@ -84,11 +85,13 @@ def test_main_func_works(ec2_client, ec2_resource, ssm_client, mocker):
     mocker.patch('delete_aws_resources_with_py.main.get_region_list', mock_get_regions)
 
     def mock_create_boto_objects(*args):
-        return ssm_client, ec2_client, ec2_resource
+        test = namedtuple('test', ['ssm_client', 'ec2_resource', 'ec2_client'])
+        t = test(ssm_client, ec2_resource, ec2_client)
+        return t
 
     mocker.patch('delete_aws_resources_with_py.main.create_boto_objects', mock_create_boto_objects)
 
-    assert main() is True
+    assert main() is None
 
 
 def test_main_func_raises_bad_arg(ec2_client, ec2_resource, ssm_client, mocker):
