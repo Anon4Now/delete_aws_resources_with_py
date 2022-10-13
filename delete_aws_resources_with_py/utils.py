@@ -48,10 +48,6 @@ def error_handler(func):
         try:
             result = func(*args, **kwargs)
             return result
-        except botocore.exceptions.NoCredentialsError as err:
-            logger.error("NoCredentialsError: error=%s func=%s", err.fmt, func.__name__)
-        except botocore.exceptions.NoRegionError as err:
-            logger.error("NoRegionError: error=%s func=%s", err.fmt, func.__name__)
         except botocore.exceptions.ClientError as err:
             logger.error("ClientError: error=%s func=%s", err, func.__name__)
         except Exception as err:
@@ -66,7 +62,7 @@ def error_handler(func):
 parser = optparse.OptionParser()
 
 
-def getArgs():
+def get_args():
     parser.add_option(
         "-o",
         "--option",
@@ -92,7 +88,7 @@ def getArgs():
     if not options.sanitize_option:
         parser.error("[-] Please specify an option flag, --help for more info")
     else:
-        return options
+        return options.sanitize_option
 
 
 #######################################
@@ -111,25 +107,12 @@ def create_boto3(service: str, boto_type: str, region=None, access_key=None, sec
     :param session_token: (optional) AWS STS Session Token string obtained for cross-account assume role actions (optional)
     :return: Initialized boto3 client or resource
     """
-    if boto_type not in ['boto_client', 'boto_resource']:
+    if boto_type == 'boto_client':
+        return boto3.client(service, region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+
+    elif boto_type == 'boto_resource':
+        return boto3.resource(service, region_name=region, aws_access_key_id=access_key, aws_secret_access_key=secret_key, aws_session_token=session_token)
+
+    else:
         logger.error(
             "[-] boto_type param passed to create_boto3 not valid, can either be 'boto_client' or 'boto_resource'")
-    else:
-        if boto_type == 'boto_client':
-            boto_client = boto3.client(
-                service,
-                region_name=region,
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key,
-                aws_session_token=session_token
-            )
-            return boto_client
-        else:
-            boto_resource = boto3.resource(
-                service,
-                region_name=region,
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key,
-                aws_session_token=session_token
-            )
-        return boto_resource

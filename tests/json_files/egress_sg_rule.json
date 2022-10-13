@@ -1,23 +1,44 @@
 {
   "SecurityGroupRules": [
     {
-      "SecurityGroupRuleId": "sgr-0f5d697d6bde6f9da",
-      "GroupId": "sg-04f64a24f0250f7e5",
-      "GroupOwnerId": "string",
+      "SecurityGroupRuleId": "sgr-03ea09e3614099210",
+      "GroupId": "sg-097b2d103d532a9a0",
+      "GroupOwnerId": "175817389458",
+      "IsEgress": false,
+      "IpProtocol": "-1",
+      "FromPort": -1,
+      "ToPort": -1,
+      "ReferencedGroupInfo": {
+        "GroupId": "sg-097b2d103d532a9a0",
+        "UserId": "175817389458"
+      },
+      "Tags": []
+    },
+    {
+      "SecurityGroupRuleId": "sgr-05b3f8aa3b667f86b",
+      "GroupId": "sg-097b2d103d532a9a0",
+      "GroupOwnerId": "175817389458",
       "IsEgress": true,
       "IpProtocol": "-1",
-      "FromPort": 1234,
-      "ToPort": 123,
-      "CidrIpv4": "string",
-      "CidrIpv6": "string",
-      "PrefixListId": "string",
-      "ReferencedGroupInfo": {
-        "GroupId": "string",
-        "PeeringStatus": "string",
-        "UserId": "string",
-        "VpcId": "string",
-        "VpcPeeringConnectionId": "string"
-      }
+      "FromPort": -1,
+      "ToPort": -1,
+      "CidrIpv4": "0.0.0.0/0",
+      "Tags": []
     }
-  ]
+  ],
+  "ResponseMetadata": {
+    "RequestId": "2f6e9b00-921b-464d-8456-37a232408d6c",
+    "HTTPStatusCode": 200,
+    "HTTPHeaders": {
+      "x-amzn-requestid": "2f6e9b00-921b-464d-8456-37a232408d6c",
+      "cache-control": "no-cache, no-store",
+      "strict-transport-security": "max-age=31536000; includeSubDomains",
+      "vary": "accept-encoding",
+      "content-type": "text/xml;charset=UTF-8",
+      "transfer-encoding": "chunked",
+      "date": "Tue, 11 Oct 2022 01:20:14 GMT",
+      "server": "AmazonEC2"
+    },
+    "RetryAttempts": 0
+  }
 }
