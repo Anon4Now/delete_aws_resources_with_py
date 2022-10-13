@@ -78,7 +78,7 @@ def get_region_list() -> List[str]:
     return [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] in SKIP_REGION_LIST]
 
 
-def create_boto_objects(current_region: str) -> NamedTuple:
+def create_boto_objects(current_region: str):
     """
     Basic function that will generate three instantiated boto objects.
 
@@ -89,9 +89,9 @@ def create_boto_objects(current_region: str) -> NamedTuple:
     """
     boto_tuple = namedtuple('boto_tuple', ['ssm_client', 'ec2_resource', 'ec2_client'])
     return boto_tuple(
-        create_boto3(service='ssm', boto_type='boto_client', region=current_region),
-        create_boto3(service='ec2', boto_type="boto_resource", region=current_region),
-        create_boto3(service='ec2', boto_type="boto_client", region=current_region)
+        ssm_client=create_boto3(service='ssm', boto_type='boto_client', region=current_region),
+        ec2_resource=create_boto3(service='ec2', boto_type="boto_resource", region=current_region),
+        ec2_client=create_boto3(service='ec2', boto_type="boto_client", region=current_region)
     )
 
 
