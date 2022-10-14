@@ -16,7 +16,7 @@ class Delete:
         """
         self.resource_obj = resource_obj
 
-    def delete_default_igw(self) -> bool:
+    def _delete_default_igw(self) -> bool:
         """
         Actions related to Internet Gateway deletion from default VPC.
 
@@ -36,7 +36,7 @@ class Delete:
 
         return True
 
-    def delete_default_subnet(self) -> bool:
+    def _delete_default_subnet(self) -> bool:
         """
         Actions related to Subnet deletion from default VPC.
 
@@ -56,7 +56,7 @@ class Delete:
 
         return True
 
-    def delete_default_rtb(self) -> bool:
+    def _delete_default_rtb(self) -> bool:
         """
         Actions related to RouteTable deletion from default VPC; cannot delete the default RouteTable.
 
@@ -84,7 +84,7 @@ class Delete:
 
         return True
 
-    def delete_default_nacl(self) -> bool:
+    def _delete_default_nacl(self) -> bool:
         """
         Actions related to NACL deletion from default VPC; cannot delete the default NACL.
 
@@ -108,7 +108,7 @@ class Delete:
 
         return True
 
-    def delete_default_sg(self) -> bool:
+    def _delete_default_sg(self) -> bool:
         """
         Actions related to SG deletion from default VPC; cannot delete the default SG.
 
@@ -132,7 +132,7 @@ class Delete:
 
         return True
 
-    def delete_default_vpc(self) -> bool:
+    def _delete_default_vpc(self) -> bool:
         """
         Actions related to the deletion of the default VPC.
 
@@ -164,11 +164,10 @@ class Delete:
 
         :raise A Boto3 AWS ClientError that was created during the API call
         """
-        self.delete_default_igw()
-        self.delete_default_subnet()
-        self.delete_default_rtb()
-        self.delete_default_nacl()
-        self.delete_default_sg()
-        self.delete_default_vpc()
+        self._delete_default_igw()
+        self._delete_default_subnet()
+        self._delete_default_rtb()
+        self._delete_default_nacl()
+        self._delete_default_sg()
+        self._delete_default_vpc()
         return True
-
