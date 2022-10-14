@@ -3,7 +3,7 @@
 # !/usr/bin/env python
 
 # Standard Library imports
-from typing import List, NamedTuple
+from typing import List
 from collections import namedtuple
 
 
