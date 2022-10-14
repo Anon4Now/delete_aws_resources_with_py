@@ -72,6 +72,9 @@ def get_region_list() -> List[str]:
     """
     Return a list of active regions to be iterated through.
 
+    If there are 'region errors' a region arg may need to be passed
+    (e.g., region='us-east-1') or add default region to aws_credentials file.
+
     :return A list containing all active regions NOT listed in the SKIP_REGION_LIST (config.json)
     """
     get_region_object = create_boto3(service='ec2', boto_type='boto_client').describe_regions()
