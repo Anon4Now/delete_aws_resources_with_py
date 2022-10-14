@@ -4,12 +4,9 @@
 from typing import Any, Dict
 from abc import ABC, abstractmethod
 
-# Third-party imports
-from botocore.exceptions import ClientError
-
 # Local App imports
 from delete_aws_resources_with_py.default_resources import Resource
-from delete_aws_resources_with_py.utils import logger
+from delete_aws_resources_with_py.utils import logger, error_handler
 
 
 class UpdateResource(ABC):
@@ -21,7 +18,7 @@ class UpdateResource(ABC):
 
 
 class UpdateNaclResource(UpdateResource):
-    """Action-oriented class for updating default resources"""
+    """Action-oriented class that handles the modification of default NACL"""
 
     def __init__(self, resource_obj: Resource) -> None:
         """
@@ -33,23 +30,22 @@ class UpdateNaclResource(UpdateResource):
 
     def update_nacl_rules(self) -> bool:
         """Actions related to removing inbound/outbound rules from the default NACL"""
-        try:
-            for acl in self.resource_obj.acl:
-                if acl.is_default:
-                    logger.info("[!] Attempting to remove inbound & outbound NACL rule for '%s'", acl.id)
-                    egress_flags = [True, False]
-                    [self.resource_obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id,
-                                                                            RuleNumber=100)
-                     for x in
-                     egress_flags]  # use list comp to pass in the True/False bool into the AWS API call; both are needed
-                    logger.info("[!] Successfully removed inbound & outbound NACL rules for '%s'\n", acl.id)
-        except ClientError:
-            raise
-        else:
-            return True
+
+        for acl in self.resource_obj.acl:
+            if acl.is_default:
+                logger.info("[!] Attempting to remove inbound & outbound NACL rule for '%s'", acl.id)
+                egress_flags = [True, False]
+                [self.resource_obj.boto_client.delete_network_acl_entry(Egress=x, NetworkAclId=acl.id,
+                                                                        RuleNumber=100)
+                 for x in
+                 egress_flags]  # use list comp to pass in the True/False bool into the AWS API call; both are needed
+                logger.info("[!] Successfully removed inbound & outbound NACL rules for '%s'\n", acl.id)
+
+        return True
 
 
 class UpdateSgResource(UpdateResource):
+    """Action-oriented class that handles the modification of default SG"""
 
     def __init__(self, resource_obj: Resource) -> None:
         """
@@ -112,15 +108,13 @@ class UpdateSgResource(UpdateResource):
 
         :raise A Boto3 API ClientError created by AWS during the API call
         """
-        try:
-            for k, v in sg_rules.items():
-                logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
-                            v, self.resource_obj.region)
-                self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=k,
-                                                                            SecurityGroupRuleIds=[v])
-            return True
-        except ClientError:
-            raise
+
+        for k, v in sg_rules.items():
+            logger.info("[!] Attempting to remove inbound SG rule '%s' in Region: '%s'",
+                        v, self.resource_obj.region)
+            self.resource_obj.boto_client.revoke_security_group_ingress(GroupId=k,
+                                                                        SecurityGroupRuleIds=[v])
+        return True
 
     def revoke_egress_sg_rule(self, sg_rules: Dict[str, str]) -> bool:
         """
@@ -131,16 +125,15 @@ class UpdateSgResource(UpdateResource):
 
         :raise A Boto3 API ClientError created by AWS during the API call
         """
-        try:
-            for k, v in sg_rules.items():
-                logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
-                            v, self.resource_obj.region)
-                self.resource_obj.boto_client.revoke_security_group_egress(GroupId=k,
-                                                                           SecurityGroupRuleIds=[v])
-            return True
-        except ClientError:
-            raise
 
+        for k, v in sg_rules.items():
+            logger.info("[!] Attempting to remove outbound SG rule '%s' in Region: '%s'",
+                        v, self.resource_obj.region)
+            self.resource_obj.boto_client.revoke_security_group_egress(GroupId=k,
+                                                                       SecurityGroupRuleIds=[v])
+        return True
+
+    @error_handler
     def revoke_sg_rules(self) -> bool:
         """
         Main method that will call the other class methods in necessary order to complete script.
