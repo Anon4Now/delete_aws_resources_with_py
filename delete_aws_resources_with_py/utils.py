@@ -42,7 +42,7 @@ logger = create_logger()  # create logger func
 ###########################
 
 def error_handler(func):
-    # exception handling decorator function
+    """Function used to handle exceptions from other funcs/methods"""
 
     def inner_func(*args, **kwargs):
         try:
@@ -62,7 +62,8 @@ def error_handler(func):
 parser = optparse.OptionParser()
 
 
-def get_args():
+def get_args() -> str:
+    """Function used to trigger and handle CLI args passed by user"""
     parser.add_option(
         "-o",
         "--option",
@@ -81,9 +82,9 @@ def get_args():
              "- Updates default SG (removes inbound/outbound rules)"
              "- Updates SSM parameter preferences to block public access"
     )
-    parsingInput = parser.parse_args()
+    parsing_input = parser.parse_args()
 
-    (options, args) = parsingInput
+    (options, args) = parsing_input
 
     if not options.sanitize_option:
         parser.error("[-] Please specify an option flag, --help for more info")
