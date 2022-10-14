@@ -23,7 +23,7 @@ class SsmPreference:
     def __repr__(self):
         return f'SsmPreference({self.ssm_client}, {self.region})'  # pragma: no cover
 
-    def get_current_service_setting_check(self) -> bool:
+    def _get_current_service_setting_check(self) -> bool:
         """
         Check to see what the current service setting is.
 
@@ -32,7 +32,7 @@ class SsmPreference:
         return self.ssm_client.get_service_setting(SettingId=self.public_share_setting)['ServiceSetting'][
                    'SettingValue'] == 'Enable'
 
-    def update_public_service_setting_check(self, share_setting_status: str) -> bool:
+    def _update_public_service_setting_check(self, share_setting_status: str) -> bool:
         """
         Make changes to the share service setting in region.
 
@@ -53,13 +53,13 @@ class SsmPreference:
 
         """
 
-        if not self.get_current_service_setting_check():
+        if not self._get_current_service_setting_check():
             logger.info(
                 "[+] SSM Document preferences already block public access with status 'Disable', no action taken\n")
             return
         logger.info(
             "[!] SSM Document preferences allows public access with status 'Enable' in Region: '%s', attempting to update",
             self.region)
-        if self.update_public_service_setting_check('Disable'):
+        if self._update_public_service_setting_check('Disable'):
             logger.info("[+] Preferences successfully updated to 'Disable' in Region: '%s'\n", self.region)
             return
