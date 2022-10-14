@@ -56,7 +56,7 @@ class UpdateSgResource(UpdateResource):
         self.resource_obj = resource_obj
 
     @staticmethod
-    def find_egress_sg_rule(sg_rules: Dict[Any, list]) -> Dict['str', 'str']:
+    def _find_egress_sg_rule(sg_rules: Dict[Any, list]) -> Dict['str', 'str']:
         """
         Static method that generates a dict containing the SG egress rule(s).
 
@@ -66,7 +66,7 @@ class UpdateSgResource(UpdateResource):
         return {k: el['SecurityGroupRuleId'] for k, v in sg_rules.items() for el in v if el['IsEgress']}
 
     @staticmethod
-    def find_ingress_sg_rule(sg_rules: Dict[Any, list]):
+    def _find_ingress_sg_rule(sg_rules: Dict[Any, list]):
         """
         Static method that generates a dict containing the SG ingress rule(s).
 
@@ -75,7 +75,7 @@ class UpdateSgResource(UpdateResource):
         """
         return {k: el['SecurityGroupRuleId'] for k, v in sg_rules.items() for el in v if not el['IsEgress']}
 
-    def get_sg_rules(self, sg_id: str) -> Dict[str, Any]:
+    def _get_sg_rules(self, sg_id: str) -> Dict[str, Any]:
         """
         Method that calls the AWS API to get a list of the Security Group rules.
 
@@ -86,7 +86,7 @@ class UpdateSgResource(UpdateResource):
         return self.resource_obj.boto_client.describe_security_group_rules(
             Filters=[{'Name': 'group-id', 'Values': [sg_id]}])
 
-    def check_for_default_sg(self) -> Dict[Any, Any]:
+    def _check_for_default_sg(self) -> Dict[Any, Any]:
         """
         Method used to filter for default Security Groups in VPC.
 
@@ -95,11 +95,11 @@ class UpdateSgResource(UpdateResource):
         out_dict = {}
         for sg in self.resource_obj.sgs:
             if sg.group_name == 'default':
-                sg_rule = self.get_sg_rules(sg.id)
+                sg_rule = self._get_sg_rules(sg.id)
                 out_dict[sg.id] = sg_rule['SecurityGroupRules']
         return out_dict
 
-    def revoke_ingress_sg_rule(self, sg_rules: Dict[str, str]) -> bool:
+    def _revoke_ingress_sg_rule(self, sg_rules: Dict[str, str]) -> bool:
         """
         A method for deleting the default Security Group ingress rule(s).
 
@@ -116,7 +116,7 @@ class UpdateSgResource(UpdateResource):
                                                                         SecurityGroupRuleIds=[v])
         return True
 
-    def revoke_egress_sg_rule(self, sg_rules: Dict[str, str]) -> bool:
+    def _revoke_egress_sg_rule(self, sg_rules: Dict[str, str]) -> bool:
         """
         A method for deleting the default Security Group egress rule(s).
 
@@ -140,9 +140,9 @@ class UpdateSgResource(UpdateResource):
 
         :return: Boolean result the represents whether the actions were successfully completed
         """
-        default_sg = self.check_for_default_sg()
-        if self.revoke_egress_sg_rule(self.find_egress_sg_rule(default_sg)):
+        default_sg = self._check_for_default_sg()
+        if self._revoke_egress_sg_rule(self._find_egress_sg_rule(default_sg)):
             logger.info("[+] Outbound SG rule in Region: '%s' was successfully removed\n", self.resource_obj.region)
-        if self.revoke_ingress_sg_rule(self.find_ingress_sg_rule(default_sg)):
+        if self._revoke_ingress_sg_rule(self._find_ingress_sg_rule(default_sg)):
             logger.info("[+] Inbound SG rule in Region: '%s' was successfully removed\n", self.resource_obj.region)
         return True
