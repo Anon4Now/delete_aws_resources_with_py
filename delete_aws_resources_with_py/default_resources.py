@@ -73,7 +73,7 @@ class Resource:
             self.route_table = self.current_vpc_resource.route_tables.all()
             self.acl = self.current_vpc_resource.network_acls.all()
             self.sgs = self.current_vpc_resource.security_groups.all()
-        except ClientError:
-            raise
+        except ClientError as err:
+            raise ("ClientError: error=%s func=%s", err) from err
         else:
             return True
