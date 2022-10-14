@@ -26,6 +26,7 @@ class UpdateNaclResource(UpdateResource):
 
         :param resource_obj: (required) Instantiated Resource object with necessary data
         """
+        super().__init__(resource_obj)
         self.resource_obj = resource_obj
 
     def update_nacl_rules(self) -> bool:
@@ -53,6 +54,7 @@ class UpdateSgResource(UpdateResource):
 
         :param resource_obj: (required) Instantiated Resource object with necessary data
         """
+        super().__init__(resource_obj)
         self.resource_obj = resource_obj
 
     @staticmethod
