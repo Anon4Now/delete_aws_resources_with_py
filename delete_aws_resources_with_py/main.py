@@ -27,7 +27,7 @@ from delete_aws_resources_with_py.change_ssm_preferences import SsmPreference
 #  VPC resources created by AWS 'https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html'
 
 
-def execute_changes_on_resources(resource_obj: Resource, user_arg: str) -> bool:
+def _execute_changes_on_resources(resource_obj: Resource, user_arg: str) -> bool:
     """
     Function that instantiates the classes from the resource_* modules.
 
@@ -52,7 +52,7 @@ def execute_changes_on_resources(resource_obj: Resource, user_arg: str) -> bool:
             return True
 
 
-def check_user_arg_response(user_arg: str) -> bool:
+def _check_user_arg_response(user_arg: str) -> bool:
     """
     Check to see if arg passed from user is valid.
 
@@ -68,7 +68,7 @@ def check_user_arg_response(user_arg: str) -> bool:
     return True
 
 
-def get_region_list() -> List[str]:
+def _get_region_list() -> List[str]:
     """
     Return a list of active regions to be iterated through.
 
@@ -81,7 +81,7 @@ def get_region_list() -> List[str]:
     return [x['RegionName'] for x in get_region_object['Regions'] if x['RegionName'] not in SKIP_REGION_LIST]
 
 
-def create_boto_objects(current_region: str):
+def _create_boto_objects(current_region: str):
     """
     Basic function that will generate three instantiated boto objects.
 
@@ -110,18 +110,18 @@ def main() -> None:
     :raise A custom error (NoDefaultVpcExistsError) that represents when a region doesn't have a default VPC
     """
     args = get_args()
-    if not check_user_arg_response(args):
+    if not _check_user_arg_response(args):
         raise UserArgNotFoundError
-    region_list = get_region_list()
+    region_list = _get_region_list()
     for current_region in region_list:
         try:
-            boto_tup = create_boto_objects(current_region)
+            boto_tup = _create_boto_objects(current_region)
             obj = Resource(boto_resource=boto_tup.ec2_resource, boto_client=boto_tup.ec2_client,
                            region=current_region)  # instantiate the Resource object
             logger.info("[!] Performing '%s' actions on region: '%s'", args, current_region)
             logger.info("========================================================================================\n")
             SsmPreference(ssm_client=boto_tup.ssm_client, region=current_region).check_ssm_preferences()
-            if execute_changes_on_resources(obj, args):
+            if _execute_changes_on_resources(obj, args):
                 logger.info("[+] **All VPC %s actions successfully performed in '%s' region**\n\n", args,
                             current_region)
         except NoDefaultVpcExistsError:
