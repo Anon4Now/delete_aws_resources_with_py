@@ -49,13 +49,13 @@ def test_execute_changes_on_resources(ec2_client, ec2_resource, mocker, sg_egres
     def mock_get_sg_rules(*args, **kwargs):
         return sg_egress_ingress_rule
 
-    mocker.patch('delete_aws_resources_with_py.main.UpdateSgResource.get_sg_rules', mock_get_sg_rules)
+    mocker.patch('delete_aws_resources_with_py.main.UpdateSgResource._get_sg_rules', mock_get_sg_rules)
 
     def mock_revoke_sg_rule(*args, **kwargs):
         return {'Return': True}
 
-    mocker.patch('delete_aws_resources_with_py.main.UpdateSgResource.revoke_ingress_sg_rule', mock_revoke_sg_rule)
-    mocker.patch('delete_aws_resources_with_py.main.UpdateSgResource.revoke_egress_sg_rule', mock_revoke_sg_rule)
+    mocker.patch('delete_aws_resources_with_py.main.UpdateSgResource._revoke_ingress_sg_rule', mock_revoke_sg_rule)
+    mocker.patch('delete_aws_resources_with_py.main.UpdateSgResource._revoke_egress_sg_rule', mock_revoke_sg_rule)
 
     obj = Resource(ec2_resource, ec2_client, 'us-east-1')
     assert execute_changes_on_resources(obj, 'modify') is True
