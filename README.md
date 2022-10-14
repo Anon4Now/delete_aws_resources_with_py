@@ -47,8 +47,11 @@ rootdir:.
 │   requirements.txt
 │
 ├───delete_aws_resources_with_py
+│   │   change_ssm_preferences.py
 │   │   default_resources.py
+│   │   errors.py
 │   │   main.py
+│   │   resource_delete.py
 │   │   resource_updates.py
 │   │   utils.py
 │   │   __init__.py
