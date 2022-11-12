@@ -90,7 +90,7 @@ class UpdateSgResource(UpdateResource):
 
     def _check_for_default_sg(self) -> Dict[Any, Any]:
         """
-        Method used to filter for default Security Groups in VPC.
+        Method used to filter for default Security Groups in current it VPC.
 
         :return: A dict containing complex structure (i.e. {'something': [{'something_else: 1}])
         """
